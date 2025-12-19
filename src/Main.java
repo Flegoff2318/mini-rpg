@@ -1,3 +1,4 @@
+import combat.Combat;
 import donjon.Donjon;
 import personnages.Hero;
 import personnages.Monstre;
@@ -5,6 +6,7 @@ import personnages.Monstre;
 void main() {
     Hero hero = new Hero("MonHero");
     hero.setAttaque(200);
+    hero.setNiveau(100);
     Donjon donjon = new Donjon(10);
     IO.println("Vous entrez dans un donjon !");
     for (Monstre monstre : donjon.getMonstres()) {

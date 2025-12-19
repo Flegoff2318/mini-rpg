@@ -17,6 +17,17 @@ public class Inventaire {
         equipements = new ArrayList<>();
     }
 
+    public void ajouterMonnaie(int monnaie) {
+        this.monnaie += monnaie;
+    }
+
+    public void retirerMonnaie(int monnaie) {
+        if (this.monnaie - monnaie <= 0) {
+            IO.println("Vous n'avez pas les fonds disponibles.");
+        } else {
+            this.monnaie -= monnaie;
+        }
+    }
 
     public int getMonnaie() {
         return monnaie;

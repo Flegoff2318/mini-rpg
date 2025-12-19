@@ -1,19 +1,19 @@
 package sorts;
 
-public class Sort {
-    private String nom;
-    private int coutMana;
-    private int puissance;
-    private int niveauMinimum;
+public class Sort implements Comparable<Sort>{
+    private final String nom;
+    private final int coutMana;
+    private final int puissance;
+    private final int niveauMinimum;
+    private final EffetSort effetSort;
 
-    public Sort() {
-    }
 
-    public Sort(String nom, int couMana, int puissance, int niveauMinimum) {
+    public Sort(String nom, int coutMana, int puissance, int niveauMinimum, EffetSort effetSort) {
         this.nom = nom;
-        this.coutMana = couMana;
+        this.coutMana = coutMana;
         this.puissance = puissance;
         this.niveauMinimum = niveauMinimum;
+        this.effetSort = effetSort;
     }
 
     @Override
@@ -25,31 +25,24 @@ public class Sort {
         return nom;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
     public int getCoutMana() {
         return coutMana;
-    }
-
-    public void setCoutMana(int coutMana) {
-        this.coutMana = coutMana;
     }
 
     public int getPuissance() {
         return puissance;
     }
 
-    public void setPuissance(int puissance) {
-        this.puissance = puissance;
-    }
-
     public int getNiveauMinimum() {
         return niveauMinimum;
     }
 
-    public void setNiveauMinimum(int niveauMinimum) {
-        this.niveauMinimum = niveauMinimum;
+    public EffetSort getEffetSort() {
+        return effetSort;
+    }
+
+    @Override
+    public int compareTo(Sort o) {
+        return this.niveauMinimum-o.niveauMinimum;
     }
 }

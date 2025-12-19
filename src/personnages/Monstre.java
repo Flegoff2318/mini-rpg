@@ -15,7 +15,7 @@ public class Monstre extends Personnage {
         int randNom = rand.nextInt(1, 4);
         int randType = rand.nextInt(0, 12);
 
-        this.nom = BESTIAIRE[randType][0];
+        nom = BESTIAIRE[randType][0];
         type = BESTIAIRE[randType][randNom];
         pointsVieMax = 100;
         pointsVie = 100;
@@ -29,8 +29,6 @@ public class Monstre extends Personnage {
         inventaire = new Inventaire();
         // Génération du butin
         inventaire.setMonnaie(rand.nextInt(0, 100000));
-        // Génération des sorts
-        sorts = new ArrayList<>();
     }
 
     public Monstre(String nom, String type) {

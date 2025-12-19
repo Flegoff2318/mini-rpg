@@ -1,10 +1,6 @@
 package personnages;
 
 import inventaire.Inventaire;
-import sorts.Sort;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class Personnage {
     protected String nom;
@@ -18,26 +14,52 @@ public abstract class Personnage {
     protected int niveau;
     protected int vitesse;
     protected Inventaire inventaire;
-    protected List<Sort> sorts;
 
-    public Personnage(){
+
+    public Personnage() {
 
     }
 
     public Personnage(String nom) {
         this.nom = nom;
-        pointsVieMax=100;
-        pointsVie=100;
-        manaMax=100;
-        mana=100;
-        attaque=10;
-        armure=2;
-        resistanceMagique=2;
-        niveau=1;
-        vitesse=100;
+        pointsVieMax = 100;
+        pointsVie = 100;
+        manaMax = 100;
+        mana = 100;
+        attaque = 10;
+        armure = 2;
+        resistanceMagique = 2;
+        niveau = 1;
+        vitesse = 100;
         inventaire = new Inventaire();
-        sorts = new ArrayList<>();
-        sorts.add(new Sort("Boule de feu",10,10,1));
+    }
+
+    public boolean subirDegats(int degats) {
+        if (degats > 0) {
+            pointsVie -= degats;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public int soigner(int soins){
+        if(soins+pointsVie>pointsVieMax){
+            soins = pointsVieMax-pointsVie;
+            pointsVie=pointsVieMax;
+        }else{
+            pointsVie+=soins;
+        }
+        return soins;
+    }
+
+    public boolean consommerMana(int pointsManaConsomme) {
+        if (mana - pointsManaConsomme > 0) {
+            mana -= pointsManaConsomme;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public String getNom() {
@@ -126,13 +148,5 @@ public abstract class Personnage {
 
     public void setInventaire(Inventaire inventaire) {
         this.inventaire = inventaire;
-    }
-
-    public List<Sort> getSorts() {
-        return sorts;
-    }
-
-    public void setSorts(List<Sort> sorts) {
-        this.sorts = sorts;
     }
 }

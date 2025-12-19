@@ -1,7 +1,7 @@
 package services;
 
 public class Service {
-    public String formatMonnaie(int monnaie) {
+    public static String formatMonnaie(int monnaie) {
         int or;
         int argent;
         int cuivre;
@@ -9,6 +9,6 @@ public class Service {
         cuivre = monnaie % 100;
         or = argent / 100;
         argent %= 100;
-        return (or + "po, " + argent + "pa, " + cuivre + "pc");
+        return (String.format("%spo, %spa, %spc",or,argent,cuivre));
     }
 }
