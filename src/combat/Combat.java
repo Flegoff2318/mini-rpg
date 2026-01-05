@@ -1,15 +1,19 @@
 package combat;
 
 import consommables.Consommable;
-import consommables.Potion;
+import consommables.ContexteConsommable;
+import effets.EffetConsommableSoins;
+import effets.EffetSortSoins;
 import equipements.Equipement;
 import personnages.Hero;
 import personnages.Monstre;
 import personnages.Personnage;
-import sorts.*;
+import sorts.ContexteSort;
+import sorts.Grimoire;
+import sorts.Sort;
 
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import static services.Service.formatMonnaie;
 
@@ -18,10 +22,12 @@ public class Combat {
     private final Monstre monstre;
     private boolean tourJoueur;
     private final ContexteSort contexteSort;
+    private final ContexteConsommable contexteConsommable;
 
     public Combat(Hero attaquant, Monstre defenseur) {
         this.hero = attaquant;
         this.monstre = defenseur;
+        this.contexteConsommable = new ContexteConsommable();
         tourJoueur = attaquant.getVitesse() >= defenseur.getVitesse();
         contexteSort = new ContexteSort();
     }
@@ -47,8 +53,6 @@ public class Combat {
                             } else if (choixAttaque == '1') {
                                 attaquePhysique();
                                 if (finCombat()) {
-                                    IO.println(String.format("Vous avez vaincu %s %s !", monstre.getNom(), monstre.getType()));
-                                    pillage();
                                     return;
                                 }
                                 tourJoueur = !tourJoueur;
@@ -66,7 +70,7 @@ public class Combat {
                         }
                     } else if (choixUtilisateur == '2') {
                         // Choix Consommable
-                        IO.println("Repasses plus tard °-°");
+                        choixConsommable();
                         break;
                     } else {
                         IO.println("erreur x_x");
@@ -78,19 +82,52 @@ public class Combat {
             } else {
                 // Tour IA
                 attaquePhysique();
+                tourJoueur = !tourJoueur;
             }
         }
     }
 
+    public boolean choixConsommable() {
+        boolean choixValide = false;
+        while (!choixValide) {
+            String choixUtilisateur = getChoixConsommableMenuConsommable();
+            if (choixUtilisateur.equalsIgnoreCase("retour"))
+                break;
+            Consommable consommable = hero.getInventaire().getConsommables().keySet().stream()
+                    .filter(c -> c.nom().equalsIgnoreCase(choixUtilisateur))
+                    .findFirst()
+                    .orElse(null);
+            if (consommable == null) {
+                IO.println("Ce consommable n'existe pas.");
+            } else {
+                if (consommable.effetConsommable() instanceof EffetConsommableSoins) {
+                    contexteConsommable.utiliserConsommable(hero, hero, consommable);
+                } else {
+                    contexteConsommable.utiliserConsommable(hero, monstre, consommable);
+                }
+                choixValide = true;
+            }
+        }
+        return choixValide;
+    }
+
+    public String getChoixConsommableMenuConsommable() {
+        hero.getInventaire().getConsommables().forEach((consommable, nombre) -> {
+            IO.println(String.format("%s - %s (Quantité : %s)", consommable.nom(), consommable.puissance(), nombre));
+        });
+        return IO.readln();
+    }
+
+
     public char getChoixAttaqueMenuAttaque() {
         IO.println("1 - Attaquer avec son arme");
-        IO.println("2 - Attaquer avec un sort");
+        IO.println("2 - Utiliser un sort");
         IO.println("3 - Retour");
         return IO.readln().charAt(0);
     }
 
     public char getChoixUtilisateurMenuPrincipal() {
-        IO.println("1 - Attaquer");
+        IO.println("1 - Actions de combat");
         IO.println("2 - Consommables");
         IO.println("3 - Fuir");
         return IO.readln().charAt(0);
@@ -135,23 +172,25 @@ public class Combat {
 
 
     public boolean choixDuSort() {
+        boolean isSortChoisi = false;
         if (tourJoueur) {
             IO.println("Séléctionnez un sort : ");
             afficherSortsDisponibles(hero);
-            boolean isSortChoisi = false;
             while (!isSortChoisi) {
                 String sortChoisi = IO.readln().toLowerCase();
                 if (!sortChoisi.isBlank()) {
                     if (sortChoisi.equalsIgnoreCase("retour")) {
-                        isSortChoisi = true;
+                        break;
                     } else {
-                        Sort sort = LivreDeSorts.SORTS.get(sortChoisi);
+                        Sort sort = Grimoire.SORTS.get(sortChoisi);
                         if (sort == null) {
                             IO.println("Ce sort n'éxiste pas. Choisis-en un autre !");
+                        } else if (hero.getNiveau() < sort.niveauMinimum()) {
+                            IO.println("Vous n'avez pas encore apprit ce sort !");
                         } else {
-                            if (sort.getEffetSort() instanceof EffetSoins) {
+                            if (sort.effetSort() instanceof EffetSortSoins) {
                                 contexteSort.lancerSort(hero, hero, sort);
-                            }else{
+                            } else {
                                 contexteSort.lancerSort(hero, monstre, sort);
                             }
                             isSortChoisi = true;
@@ -163,18 +202,18 @@ public class Combat {
             // Tour IA
             return false;
         }
-        return false;
+        return isSortChoisi;
     }
 
     public void afficherSortsDisponibles(Personnage personnage) {
-        LivreDeSorts.SORTS.values().stream()
+        Grimoire.SORTS.values().stream()
                 .sorted(Sort::compareTo)
-                .filter(sort -> sort.getNiveauMinimum() <= personnage.getNiveau())
+                .filter(sort -> sort.niveauMinimum() <= personnage.getNiveau())
                 .forEach((sort) ->
                         IO.println(String.format("%s - %s points de mana, %s de puissance",
-                                sort.getNom(),
-                                sort.getCoutMana(),
-                                sort.getPuissance()
+                                sort.nom(),
+                                sort.coutMana(),
+                                sort.puissance()
                         ))
 
                 );
@@ -182,35 +221,39 @@ public class Combat {
     }
 
     public void pillage() {
+        pillerExperience();
         pillerEquipement();
         pillerConsommables();
         pillerMonnaie();
     }
 
+    private void pillerExperience() {
+        int experienceGagnee = 20 * monstre.getNiveau();
+        hero.gagnerExperience(experienceGagnee);
+    }
+
     private void pillerMonnaie() {
         int monnaiePille = monstre.getInventaire().getMonnaie();
-        hero.getInventaire().ajouterMonnaie(monnaiePille);
-        IO.println("Vous avez récupéré " + formatMonnaie(monnaiePille));
-        IO.println(String.format("Nouvelle fortune : %s", formatMonnaie(hero.getInventaire().getMonnaie())));
+        if (monnaiePille > 0) {
+            hero.getInventaire().ajouterMonnaie(monnaiePille);
+            IO.println("Vous avez récupéré " + formatMonnaie(monnaiePille));
+            IO.println(String.format("Nouvelle fortune : %s", formatMonnaie(hero.getInventaire().getMonnaie())));
+        }
     }
 
     private void pillerConsommables() {
-        List<Consommable> consommablesPille = monstre.getInventaire().getConsommables();
-        hero.getInventaire().getConsommables().addAll(consommablesPille);
-        IO.println("Vous avez récupéré " + consommablesPille.size() + " nouveaux consommables.");
+        Map<Consommable, Integer> consommablesPille = monstre.getInventaire().getConsommables();
+        if (!consommablesPille.isEmpty()) {
+            hero.getInventaire().ajouterConsommables(consommablesPille);
+            IO.println("Vous avez récupéré " + consommablesPille.size() + " nouveaux consommables.");
+        }
     }
 
     private void pillerEquipement() {
         List<Equipement> equipementsPille = monstre.getInventaire().getEquipements();
-        hero.getInventaire().getEquipements().addAll(equipementsPille);
-        IO.println("Vous avez récupéré " + equipementsPille.size() + " nouveaux objets.");
-    }
-
-    public void utiliserPotion(Personnage utilisateur, Potion potion) {
-        if (utilisateur.getInventaire().getConsommables().contains(potion)) {
-            utilisateur.setPointsVie(utilisateur.getPointsVie() + potion.getRegenerationVie());
-            utilisateur.setMana(utilisateur.getMana() + potion.getRegenerationMana());
-            utilisateur.getInventaire().getConsommables().remove(potion);
+        if (!equipementsPille.isEmpty()) {
+            hero.getInventaire().getEquipements().addAll(equipementsPille);
+            IO.println("Vous avez récupéré " + equipementsPille.size() + " nouveaux objets.");
         }
     }
 
