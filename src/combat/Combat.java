@@ -32,16 +32,20 @@ public class Combat {
         contexteSort = new ContexteSort();
     }
 
-    public void debutCombat() {
+    public boolean debutCombat() {
         while (true) {
             if (tourJoueur) {
                 IO.println(String.format("%s %s vous jette un regard noir, qu'allez-vous faire ? (%s Points de vie restants)", monstre.getNom(), monstre.getType(), monstre.getPointsVie()));
                 while (true) {
                     char choixUtilisateur = getChoixUtilisateurMenuPrincipal();
+                    if (choixUtilisateur=='4'){
+                        IO.println("Vous quittez le donjon.");
+                        return true;
+                    }
                     if (choixUtilisateur == '3') {
                         if (fuir()) {
                             IO.println("Vous prenez la fuite.");
-                            return;
+                            return false;
                         } else {
                             IO.println("Vous ne pouvez pas fuir le combat.");
                         }
@@ -53,7 +57,7 @@ public class Combat {
                             } else if (choixAttaque == '1') {
                                 attaquePhysique();
                                 if (finCombat()) {
-                                    return;
+                                    return false;
                                 }
                                 tourJoueur = !tourJoueur;
                                 break;
@@ -61,7 +65,7 @@ public class Combat {
                                 boolean isSortChoisi = choixDuSort();
                                 if (isSortChoisi) {
                                     if (finCombat()) {
-                                        return;
+                                        return false;
                                     }
                                     tourJoueur = !tourJoueur;
                                 }
@@ -130,6 +134,7 @@ public class Combat {
         IO.println("1 - Actions de combat");
         IO.println("2 - Consommables");
         IO.println("3 - Fuir");
+        IO.println("4 - Quitter le Donjon");
         return IO.readln().charAt(0);
     }
 
@@ -245,15 +250,17 @@ public class Combat {
         Map<Consommable, Integer> consommablesPille = monstre.getInventaire().getConsommables();
         if (!consommablesPille.isEmpty()) {
             hero.getInventaire().ajouterConsommables(consommablesPille);
-            IO.println("Vous avez récupéré " + consommablesPille.size() + " nouveaux consommables.");
+            int nombreConsommablesAjoutes = consommablesPille.values().stream().mapToInt(Integer::intValue).sum();
+            IO.println("Vous avez récupéré " + nombreConsommablesAjoutes + " nouveaux consommables.");
         }
     }
 
     private void pillerEquipement() {
-        List<Equipement> equipementsPille = monstre.getInventaire().getEquipements();
+        Map<Equipement, Integer> equipementsPille = monstre.getInventaire().getEquipements();
         if (!equipementsPille.isEmpty()) {
-            hero.getInventaire().getEquipements().addAll(equipementsPille);
-            IO.println("Vous avez récupéré " + equipementsPille.size() + " nouveaux objets.");
+            hero.getInventaire().ajouterEquipements(equipementsPille);
+            int nombreEquipementsAjoutes = equipementsPille.values().stream().mapToInt(Integer::intValue).sum();
+            IO.println("Vous avez récupéré " + nombreEquipementsAjoutes + " nouveaux objets.");
         }
     }
 
