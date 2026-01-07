@@ -1,5 +1,6 @@
 package personnages;
 
+import equipements.EquipementEquipe;
 import inventaire.Inventaire;
 
 public abstract class Personnage {
@@ -14,6 +15,8 @@ public abstract class Personnage {
     protected int niveau;
     protected int vitesse;
     protected Inventaire inventaire;
+    protected EquipementEquipe equipementEquipe;
+
 
 
     public Personnage() {
@@ -44,7 +47,7 @@ public abstract class Personnage {
     }
 
     public int soigner(int soins){
-        if(soins+pointsVie>pointsVieMax){
+        if(soins+pointsVie>=pointsVieMax){
             soins = pointsVieMax-pointsVie;
             pointsVie=pointsVieMax;
         }else{
@@ -54,7 +57,7 @@ public abstract class Personnage {
     }
 
     public boolean consommerMana(int pointsManaConsomme) {
-        if (mana - pointsManaConsomme > 0) {
+        if (mana - pointsManaConsomme >= 0) {
             mana -= pointsManaConsomme;
             return true;
         } else {
@@ -148,5 +151,13 @@ public abstract class Personnage {
 
     public void setInventaire(Inventaire inventaire) {
         this.inventaire = inventaire;
+    }
+
+    public EquipementEquipe getEquipementEquipe() {
+        return equipementEquipe;
+    }
+
+    public void setEquipementEquipe(EquipementEquipe equipementEquipe) {
+        this.equipementEquipe = equipementEquipe;
     }
 }

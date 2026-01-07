@@ -1,8 +1,11 @@
 package inventaire;
 
 import consommables.Consommable;
+import equipements.Armure;
+import equipements.EmplacementArmure;
 import equipements.Equipement;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 

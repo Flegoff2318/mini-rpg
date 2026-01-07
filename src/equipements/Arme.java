@@ -9,4 +9,12 @@ public class Arme extends Equipement{
         this.puissancePhysique = puissancePhysique;
         this.puissanceMagique = puissanceMagique;
     }
+
+    public int getPuissancePhysique() {
+        return puissancePhysique;
+    }
+
+    public int getPuissanceMagique() {
+        return puissanceMagique;
+    }
 }

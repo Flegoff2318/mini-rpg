@@ -33,6 +33,22 @@ public class Rpg {
         hero.setNiveau(1);
         hero.getInventaire().ajouterMonnaie(20000);
 
+        // Ajouter equipement pour tester armure
+        Map<Equipement,Integer> nouveauxEquipements = new HashMap<>(){{
+            put(Forgeron.RATELIER.get(Armurerie.EPEE_FER),1);
+            put(Forgeron.RATELIER.get(Armurerie.TETE_FER),1);
+            put(Forgeron.RATELIER.get(Armurerie.EPAULES_FER),1);
+            put(Forgeron.RATELIER.get(Armurerie.POIGNETS_FER),1);
+            put(Forgeron.RATELIER.get(Armurerie.TORSE_FER),1);
+            put(Forgeron.RATELIER.get(Armurerie.CEINTURE_FER),1);
+            put(Forgeron.RATELIER.get(Armurerie.MAINS_FER),1);
+            put(Forgeron.RATELIER.get(Armurerie.JAMBES_FER),1);
+            put(Forgeron.RATELIER.get(Armurerie.PIEDS_FER),1);
+        }};
+        hero.getInventaire().ajouterEquipements(nouveauxEquipements);
+
+        hero.getEquipementEquipe().equiperArme(nouveauxEquipements.keySet().stream().filter());
+
         Map<Consommable, Integer> mapConsommables = new HashMap<>(
                 Map.ofEntries(
                         Map.entry(Apothicaire.ETAGERE.get(Potions.PDV_MINEURE), 3),
@@ -71,6 +87,10 @@ public class Rpg {
             }
             // Quitter
         }
+    }
+
+    public void menuEquipement(){
+        
     }
 
     public void menuBoutique() {
