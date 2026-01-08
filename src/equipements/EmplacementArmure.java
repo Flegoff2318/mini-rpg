@@ -10,13 +10,9 @@ public enum EmplacementArmure {
     JAMBES("Jambes"),
     PIEDS("Pieds");
 
-    private final String label;
+    public final String label;
 
     EmplacementArmure(String label) {
         this.label = label;
-    }
-
-    public String getLabel() {
-        return label;
     }
 }

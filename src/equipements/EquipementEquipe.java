@@ -7,6 +7,14 @@ public class EquipementEquipe {
     private Arme armeEquipee;
     private final EnumMap<EmplacementArmure, Armure> armuresEquipees = new EnumMap<>(EmplacementArmure.class);
 
+    public void equiper(Equipement equipement){
+        if(equipement instanceof Arme){
+            this.armeEquipee = (Arme) equipement;
+        }else if (equipement instanceof Armure){
+            this.armuresEquipees.put(((Armure) equipement).getEmplacementArmure(), (Armure) equipement);
+        }
+    }
+
     public void equiperArme(Arme arme) {
         this.armeEquipee = arme;
     }
