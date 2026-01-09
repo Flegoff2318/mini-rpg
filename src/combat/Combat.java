@@ -39,7 +39,6 @@ public class Combat {
                 while (true) {
                     char choixUtilisateur = getChoixUtilisateurMenuPrincipal();
                     if (choixUtilisateur=='4'){
-                        IO.println("Vous quittez le donjon.");
                         return true;
                     }
                     if (choixUtilisateur == '3') {
@@ -124,8 +123,8 @@ public class Combat {
 
 
     public char getChoixAttaqueMenuAttaque() {
-        IO.println("1 - Attaquer avec son arme");
-        IO.println("2 - Utiliser un sort");
+        IO.println("1 - Attaquer en melee");
+        IO.println("2 - Grimoire");
         IO.println("3 - Retour");
         return IO.readln().charAt(0);
     }
