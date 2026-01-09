@@ -80,6 +80,19 @@ public abstract class Personnage {
         this.mana = Math.min(mana, getManaMax());
     }
 
+    public void desequiperDepuisInventaire(Equipement equipement) {
+        if (!this.getInventaire().contientEquipement(equipement)) {
+            IO.print("Vous n'avez pas cet objet.");
+            return;
+        }
+        Equipement equipementDesequipe = equipementEquipe.desequiper(equipement);
+        if (equipementDesequipe != null) {
+            IO.println(String.format("Vous avez ranger votre %s dans votre sac.", equipementDesequipe.nom()));
+            inventaire.ajouterEquipement(equipementDesequipe, 1);
+        }
+        clampRessources();
+    }
+
     public void equiperDepuisInventaire(Equipement equipement) {
         if (!this.getInventaire().contientEquipement(equipement)) {
             IO.println("Vous n'avez pas cet objet.");
@@ -92,6 +105,7 @@ public abstract class Personnage {
         inventaire.retirerEquipement(equipement, 1);
         Equipement equipementRemplace = equipementEquipe.equiper(equipement);
         if (equipementRemplace != null) {
+            IO.println(String.format("Vous avez equipe votre %s et rangé %s dans votre sac.", equipement.nom(), equipementRemplace.nom()));
             inventaire.ajouterEquipement(equipementRemplace, 1);
         }
         // Permet de rééquilibrer les stats en fonction du nouvel équipement équipé.

@@ -7,15 +7,14 @@ import consommables.Consommable;
 import consommables.Potions;
 import core.Statistiques;
 import donjon.Donjon;
-import equipements.Armurerie;
-import equipements.Equipement;
-import equipements.Forgeron;
+import equipements.*;
 import personnages.Hero;
 import personnages.Monstre;
 import services.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Rpg {
     private Hero hero;
@@ -30,23 +29,23 @@ public class Rpg {
         // TODO : Type de hero, caster/physical/merchant/assassin
         hero = new Hero("Jerry");
         boutique = new Boutique();
-        Statistiques statsSupplementaires = new Statistiques(0,0,100,0,0,0,0);
+        Statistiques statsSupplementaires = new Statistiques(0, 0, 100, 0, 0, 0, 0);
         hero.setStatistiques(hero.getStatistiques().add(statsSupplementaires));
         hero.getInventaire().ajouterMonnaie(20000);
 
-        Map<Equipement,Integer> nouveauxEquipements = new HashMap<>(){{
-            put(Forgeron.RATELIER.get(Armurerie.EPEE_FER),1);
-            put(Forgeron.RATELIER.get(Armurerie.TETE_FER),1);
-            put(Forgeron.RATELIER.get(Armurerie.EPAULES_FER),1);
-            put(Forgeron.RATELIER.get(Armurerie.POIGNETS_FER),1);
-            put(Forgeron.RATELIER.get(Armurerie.TORSE_FER),1);
-            put(Forgeron.RATELIER.get(Armurerie.CEINTURE_FER),1);
-            put(Forgeron.RATELIER.get(Armurerie.MAINS_FER),1);
-            put(Forgeron.RATELIER.get(Armurerie.JAMBES_FER),1);
-            put(Forgeron.RATELIER.get(Armurerie.PIEDS_FER),1);
+        Map<Equipement, Integer> nouveauxEquipements = new HashMap<>() {{
+            put(Forgeron.RATELIER.get(Armurerie.EPEE_FER), 1);
+            put(Forgeron.RATELIER.get(Armurerie.TETE_FER), 1);
+            put(Forgeron.RATELIER.get(Armurerie.EPAULES_FER), 1);
+            put(Forgeron.RATELIER.get(Armurerie.POIGNETS_FER), 1);
+            put(Forgeron.RATELIER.get(Armurerie.TORSE_FER), 1);
+            put(Forgeron.RATELIER.get(Armurerie.CEINTURE_FER), 1);
+            put(Forgeron.RATELIER.get(Armurerie.MAINS_FER), 1);
+            put(Forgeron.RATELIER.get(Armurerie.JAMBES_FER), 1);
+            put(Forgeron.RATELIER.get(Armurerie.PIEDS_FER), 1);
         }};
 
-        nouveauxEquipements.forEach((k,v)-> hero.getInventaire().ajouterEquipement(k,v));
+        nouveauxEquipements.forEach((k, v) -> hero.getInventaire().ajouterEquipement(k, v));
         hero.equiperDepuisInventaire(Forgeron.RATELIER.get(Armurerie.EPEE_FER));
 
         Map<Consommable, Integer> mapConsommables = new HashMap<>(
@@ -59,39 +58,182 @@ public class Rpg {
     }
 
     public void menuPrincipal() {
-        boolean choixMenu = false;
-        while (!choixMenu) {
-            // Boutique
-            menuBoutique();
-            // Achat & Revente
-            // Selection de la difficulté
-            // Combats
-            Donjon donjon = new Donjon(10);
-            IO.println("Vous entrez dans un donjon !");
-            IO.println("===== DONJON =====");
+        boolean partieEnCours = true;
+        while (partieEnCours) {
+            boolean choixMenuPrincipal = false;
+            while (!choixMenuPrincipal) {
+                IO.println("===== MENU PRINCIPAL =====");
+                char choixUtilisateur = getChoixMenuPrincipal();
+                switch (choixUtilisateur) {
+                    case '1' -> menuBoutique();
+                    case '2' -> menuInventaire();
+                    case '3' -> {
+                        boolean joueurEnVie = aventure();
+                        if (!joueurEnVie) {
+                            choixMenuPrincipal = true;
+                            partieEnCours = false;
+                        }
+                    }
+                    case '4' -> {
+                        IO.println("PeepoSad :(");
+                        choixMenuPrincipal = true;
+                        partieEnCours = false;
+                    }
+                }
 
-            for (Monstre monstre : donjon.getMonstres()) {
-                Combat combat = new Combat(hero, monstre);
-                boolean quitterDonjon = combat.debutCombat();
-                if (quitterDonjon) {
-                    break;
-                }
-                if (hero.getPointsVie() <= 0) {
-                    IO.println("Vous êtes mort.");
-                    break;
-                } else if (donjon.getMonstres().getLast() != monstre) {
-                    IO.println("Vous entrez dans la salle suivante ...");
-                } else {
-                    IO.println("Vous êtes sorti du donjon sain et sauf.");
-                    choixMenu = true;
-                }
             }
+            // TODO : Achat & Revente
+            // TODO : Selection de la difficulté
             // Quitter
         }
     }
 
-    public void menuEquipement(){
-        
+    private boolean aventure() {
+        Donjon donjon = new Donjon(10);
+        IO.println("===== DONJON =====");
+        boolean joueurEnVie = true;
+        for (Monstre monstre : donjon.getMonstres()) {
+            Combat combat = new Combat(hero, monstre);
+            boolean quitterDonjon = combat.debutCombat();
+            if (quitterDonjon) {
+                IO.println("Vous rebroussez chemin.");
+                break;
+            }
+            if (hero.getPointsVie() <= 0) {
+                IO.println("Vous êtes mort.");
+                joueurEnVie = false;
+            } else if (donjon.getMonstres().getLast() != monstre) {
+                IO.println("Vous entrez dans la salle suivante ...");
+            } else {
+                IO.println("Vous êtes sorti du donjon sain et sauf.");
+                break;
+            }
+        }
+        return joueurEnVie;
+    }
+
+    private void menuInventaire() {
+        IO.println("===== INVENTAIRE =====");
+        boolean choixMenuInventaire = false;
+        while (!choixMenuInventaire) {
+            char choixUtilisateur = getChoixMenuInventaire();
+            switch (choixUtilisateur) {
+                case '1' -> inventaire();
+                case '2' -> consommables();
+                case '3' -> choixMenuInventaire = true;
+            }
+        }
+    }
+
+    private void consommables() {
+        IO.println("===== CONSOMMABLES =====");
+        hero.getInventaire().getConsommables().forEach((k, v) -> IO.println(String.format("%s - Stock : %s", k.nom(), v)));
+    }
+
+    private void inventaire() {
+        IO.println("===== BARDA =====");
+        boolean choixMenuSacADos = false;
+        while (!choixMenuSacADos) {
+            char choixUtilisateur = getChoixSacADos();
+            switch (choixUtilisateur) {
+                case '1' -> {
+                    if (afficherSacADos()) {
+                        choixEquipementAEquiper();
+                    }
+                }
+                case '2' -> {
+                    if (afficherEquipementPorte()) {
+                        choixEquipementADesequiper();
+                    }
+                }
+                case '3' -> choixMenuSacADos = true;
+            }
+        }
+
+    }
+
+    private void choixEquipementADesequiper() {
+        IO.println("1 - Desequiper l'arme");
+        IO.println("2 - Desequiper une piece d'armure");
+        IO.println("3 - Retour");
+        boolean choixMenuDesequiper = false;
+        while (!choixMenuDesequiper) {
+            IO.print("Entre le nom de l'equipement : ");
+            char choixMenu = IO.readln().charAt(0);
+            switch (choixMenu) {
+                case '1' -> hero.desequiperDepuisInventaire(hero.getEquipementEquipe().getArmeEquipee());
+                case '2' -> {
+                    String choixUtilisateur = IO.readln();
+                    hero.getEquipementEquipe().getArmuresEquipees().values().stream()
+                            .filter(equipement -> equipement.nom().equalsIgnoreCase(choixUtilisateur))
+                            .findFirst()
+                            .ifPresent(equipement -> hero.getInventaire().ajouterEquipement(hero.getEquipementEquipe().desequiperArmure(equipement.emplacementArmure()), 1));
+                }
+                case '3' -> choixMenuDesequiper = true;
+            }
+        }
+    }
+
+    private boolean afficherEquipementPorte() {
+        boolean arme = false;
+        boolean armures = false;
+
+        IO.println("===== EQUIPEMENT PORTE =====");
+        IO.println("====° Arme °====");
+        if (hero.getEquipementEquipe().getArmeEquipee() != null) {
+            IO.println(hero.getEquipementEquipe().getArmeEquipee());
+            arme = true;
+        } else {
+            IO.println("Aucune arme équipée.");
+        }
+        IO.println("====° Armures °====");
+        if (hero.getEquipementEquipe().getArmuresEquipees().isEmpty()) {
+            IO.println("Aucune armure équipée.");
+        } else {
+            hero.getEquipementEquipe().getArmuresEquipees().forEach((_, v) -> IO.println(v));
+            armures = true;
+        }
+        return arme || armures;
+    }
+
+    private void choixEquipementAEquiper() {
+        IO.print("Entre le nom de l'equipement : ");
+        String choixUtilisateur = IO.readln();
+        hero.getInventaire().getEquipements().keySet().stream()
+                .filter(equipement -> equipement.nom().equalsIgnoreCase(choixUtilisateur))
+                .findFirst()
+                .ifPresent(equipement -> hero.equiperDepuisInventaire(equipement));
+    }
+
+    private boolean afficherSacADos() {
+        IO.println("===== SAC A DOS =====");
+        if (hero.getInventaire().getEquipements().isEmpty()) {
+            return false;
+        }
+        hero.getInventaire().getEquipements().forEach((k, _) -> IO.println(k));
+        return true;
+    }
+
+    private char getChoixSacADos() {
+        IO.println("1 - Equiper une piece d'equipement");
+        IO.println("2 - Desequiper une piece d'equipement");
+        IO.println("3 - Retour");
+        return IO.readln().charAt(0);
+    }
+
+    public char getChoixMenuInventaire() {
+        IO.println("1 - Barda");
+        IO.println("2 - Consommables");
+        IO.println("3 - Retour");
+        return IO.readln().charAt(0);
+    }
+
+    public char getChoixMenuPrincipal() {
+        IO.println("1 - Boutique");
+        IO.println("2 - Inventaire");
+        IO.println("3 - A l'aventure !");
+        IO.println("4 - Quitter");
+        return IO.readln().charAt(0);
     }
 
     public void menuBoutique() {
@@ -108,13 +250,14 @@ public class Rpg {
     }
 
     private char getChoixMenuBoutique() {
-        IO.println("1 - Consommables");
-        IO.println("2 - Equipements");
+        IO.println("1 - Apothicaire");
+        IO.println("2 - Forgeron");
         IO.println("3 - Retour");
         return IO.readln().charAt(0);
     }
 
     public void menuConsommables() {
+        IO.println("===== APOTHICAIRE =====");
         boolean choixMenuConsommables = false;
         while (!choixMenuConsommables) {
             String choixUtilisateur = getChoixMenuConsommables();
@@ -159,6 +302,7 @@ public class Rpg {
     }
 
     public void menuEquipements() {
+        IO.println("===== FORGERON =====");
         boolean choixMenuEquipements = false;
         while (!choixMenuEquipements) {
             String choixUtilisateur = getChoixMenuEquipements();

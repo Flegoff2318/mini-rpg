@@ -9,7 +9,7 @@ public class EquipementEquipe {
     private final EnumMap<EmplacementArmure, Armure> armuresEquipees = new EnumMap<>(EmplacementArmure.class);
 
     public Equipement equiper(Equipement equipement) {
-        switch (equipement){
+        switch (equipement) {
             case Arme arme -> {
                 return equiperArme(arme);
             }
@@ -27,6 +27,20 @@ public class EquipementEquipe {
 //            return equiper(nouvelleArmure);
 //        }
 //        return null;
+    }
+
+    public Equipement desequiper(Equipement equipement) {
+        switch (equipement) {
+            case Armure armure -> {
+                return desequiperArmure(armure.emplacementArmure());
+            }
+            case Arme arme -> {
+                return desequiperArme();
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 
     public Equipement equiperArme(Arme arme) {
