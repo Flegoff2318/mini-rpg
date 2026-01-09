@@ -4,9 +4,11 @@ import boutique.Boutique;
 import combat.Combat;
 import consommables.Apothicaire;
 import consommables.Consommable;
+import consommables.ContexteConsommable;
 import consommables.Potions;
 import core.Statistiques;
 import donjon.Donjon;
+import effets.EffetConsommableSoins;
 import equipements.*;
 import personnages.Hero;
 import personnages.Monstre;
@@ -19,6 +21,11 @@ import java.util.Optional;
 public class Rpg {
     private Hero hero;
     private Boutique boutique;
+    private final ContexteConsommable contexteConsommable;
+
+    public Rpg() {
+        this.contexteConsommable = new ContexteConsommable();
+    }
 
     public void play() {
         testData();
@@ -127,7 +134,35 @@ public class Rpg {
 
     private void consommables() {
         IO.println("===== CONSOMMABLES =====");
+        boolean choixMenuConsommables = false;
+        while (!choixMenuConsommables) {
+            String choixUtilisateur = getChoixMenuConsommablesUtilise();
+            switch (choixUtilisateur) {
+                case "retour" -> {
+                    return;
+                }
+                default -> {
+                    Consommable consommable = hero.getInventaire().getConsommables().keySet().stream()
+                            .filter(c -> c.nom().equalsIgnoreCase(choixUtilisateur))
+                            .findFirst()
+                            .orElse(null);
+                    if (consommable == null) {
+                        IO.println("Ce consommable n'existe pas.");
+                    } else {
+                        // Le hero va s'infliger des dégats si il essaye de boire une potion de type degats, c'est pas très malin de sa part!
+                        choixMenuConsommables = contexteConsommable.utiliserConsommable(hero, hero, consommable);
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    private String getChoixMenuConsommablesUtilise() {
         hero.getInventaire().getConsommables().forEach((k, v) -> IO.println(String.format("%s - Stock : %s", k.nom(), v)));
+        IO.println("retour");
+        return IO.readln();
     }
 
     private void inventaire() {
