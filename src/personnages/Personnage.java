@@ -15,14 +15,14 @@ public abstract class Personnage {
     protected Statistiques statistiques;
 
 
-    public Personnage(String nom, int pointsVieMax, int manaMax, int attaquePhysiquen, int puissanceMagique, int armure, int resistanceMagique, int vitesse, int niveau) {
+    public Personnage(String nom, int pointsVieMax, int manaMax, int attaquePhysique, int puissanceMagique, int armure, int resistanceMagique, int vitesse, int niveau) {
         this.nom = nom;
         this.pointsVie = pointsVieMax;
         this.mana = manaMax;
         this.niveau = niveau;
         this.inventaire = new Inventaire();
         this.equipementEquipe = new EquipementEquipe();
-        this.statistiques = new Statistiques(pointsVieMax, manaMax, attaquePhysiquen, puissanceMagique, armure, resistanceMagique, vitesse);
+        this.statistiques = new Statistiques(pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse);
     }
 
     public Personnage(String nom) {
