@@ -14,6 +14,7 @@ import services.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Rpg {
     private Hero hero;
@@ -59,9 +60,9 @@ public class Rpg {
     public void menuPrincipal() {
         boolean partieEnCours = true;
         while (partieEnCours) {
-            IO.println("===== MENU PRINCIPAL =====");
             boolean choixMenuPrincipal = false;
             while (!choixMenuPrincipal) {
+                IO.println("===== MENU PRINCIPAL =====");
                 char choixUtilisateur = getChoixMenuPrincipal();
                 switch (choixUtilisateur) {
                     case '1' -> menuBoutique();
@@ -130,17 +131,58 @@ public class Rpg {
     }
 
     private void inventaire() {
-        IO.println("===== SAC A DOS =====");
-        hero.getInventaire().getEquipements().forEach((k, _) -> {
-            switch (k) {
-                case Arme arme -> IO.println(arme);
-                case Armure armure -> IO.println(armure);
+        IO.println("===== BARDA =====");
+        boolean choixMenuSacADos = false;
+        while (!choixMenuSacADos) {
+            char choixUtilisateur = getChoixSacADos();
+            switch (choixUtilisateur) {
+                case '1' -> {
+                    if (afficherSacADos()) {
+                        choixEquipementAEquiper();
+                    }
+                }
+                case '2' -> {
+                    if (afficherEquipementPorte()) {
+                        choixEquipementADesequiper();
+                    }
+                }
+                case '3' -> choixMenuSacADos = true;
             }
-        });
+        }
+
+    }
+
+    private void choixEquipementADesequiper() {
+        IO.println("1 - Desequiper l'arme");
+        IO.println("2 - Desequiper une piece d'armure");
+        IO.println("3 - Retour");
+        boolean choixMenuDesequiper = false;
+        while (!choixMenuDesequiper) {
+            IO.print("Entre le nom de l'equipement : ");
+            char choixMenu = IO.readln().charAt(0);
+            switch (choixMenu) {
+                case '1' -> hero.desequiperDepuisInventaire(hero.getEquipementEquipe().getArmeEquipee());
+                case '2' -> {
+                    String choixUtilisateur = IO.readln();
+                    hero.getEquipementEquipe().getArmuresEquipees().values().stream()
+                            .filter(equipement -> equipement.nom().equalsIgnoreCase(choixUtilisateur))
+                            .findFirst()
+                            .ifPresent(equipement -> hero.getInventaire().ajouterEquipement(hero.getEquipementEquipe().desequiperArmure(equipement.emplacementArmure()), 1));
+                }
+                case '3' -> choixMenuDesequiper = true;
+            }
+        }
+    }
+
+    private boolean afficherEquipementPorte() {
+        boolean arme = false;
+        boolean armures = false;
+
         IO.println("===== EQUIPEMENT PORTE =====");
         IO.println("====° Arme °====");
         if (hero.getEquipementEquipe().getArmeEquipee() != null) {
             IO.println(hero.getEquipementEquipe().getArmeEquipee());
+            arme = true;
         } else {
             IO.println("Aucune arme équipée.");
         }
@@ -149,11 +191,38 @@ public class Rpg {
             IO.println("Aucune armure équipée.");
         } else {
             hero.getEquipementEquipe().getArmuresEquipees().forEach((_, v) -> IO.println(v));
+            armures = true;
         }
+        return arme || armures;
+    }
+
+    private void choixEquipementAEquiper() {
+        IO.print("Entre le nom de l'equipement : ");
+        String choixUtilisateur = IO.readln();
+        hero.getInventaire().getEquipements().keySet().stream()
+                .filter(equipement -> equipement.nom().equalsIgnoreCase(choixUtilisateur))
+                .findFirst()
+                .ifPresent(equipement -> hero.equiperDepuisInventaire(equipement));
+    }
+
+    private boolean afficherSacADos() {
+        IO.println("===== SAC A DOS =====");
+        if (hero.getInventaire().getEquipements().isEmpty()) {
+            return false;
+        }
+        hero.getInventaire().getEquipements().forEach((k, _) -> IO.println(k));
+        return true;
+    }
+
+    private char getChoixSacADos() {
+        IO.println("1 - Equiper une piece d'equipement");
+        IO.println("2 - Desequiper une piece d'equipement");
+        IO.println("3 - Retour");
+        return IO.readln().charAt(0);
     }
 
     public char getChoixMenuInventaire() {
-        IO.println("1 - Equipement");
+        IO.println("1 - Barda");
         IO.println("2 - Consommables");
         IO.println("3 - Retour");
         return IO.readln().charAt(0);
@@ -161,7 +230,7 @@ public class Rpg {
 
     public char getChoixMenuPrincipal() {
         IO.println("1 - Boutique");
-        IO.println("2 - Equipements");
+        IO.println("2 - Inventaire");
         IO.println("3 - A l'aventure !");
         IO.println("4 - Quitter");
         return IO.readln().charAt(0);

@@ -21,7 +21,7 @@ public class Hero extends Personnage {
         if (experience >= pallierLevelUp) {
             this.niveau += 1;
             this.experience = pallierLevelUp - this.experience;
-            this.getStatistiques().add(new Statistiques(10,10,1,1,1,1,10));
+            this.statistiques = this.getStatistiques().add(new Statistiques(10,10,1,1,1,1,10));
             this.pointsVie = this.getPointsVieMax();
             this.mana = this.getManaMax();
             IO.println("Level up !");

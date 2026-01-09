@@ -8,13 +8,13 @@ import java.util.Map;
 public interface Forgeron {
     Map<Armurerie, Equipement> RATELIER = new HashMap<>() {{
         put(Armurerie.TETE_FER, new Armure(Armurerie.TETE_FER.label, EmplacementArmure.TETE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
-        put(Armurerie.EPAULES_FER, new Armure(Armurerie.EPAULES_FER.label, EmplacementArmure.TETE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
-        put(Armurerie.TORSE_FER, new Armure(Armurerie.TORSE_FER.label, EmplacementArmure.TETE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
-        put(Armurerie.POIGNETS_FER, new Armure(Armurerie.POIGNETS_FER.label, EmplacementArmure.TETE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
-        put(Armurerie.CEINTURE_FER, new Armure(Armurerie.CEINTURE_FER.label, EmplacementArmure.TETE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
-        put(Armurerie.MAINS_FER, new Armure(Armurerie.MAINS_FER.label, EmplacementArmure.TETE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
-        put(Armurerie.JAMBES_FER, new Armure(Armurerie.JAMBES_FER.label, EmplacementArmure.TETE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
-        put(Armurerie.PIEDS_FER, new Armure(Armurerie.PIEDS_FER.label, EmplacementArmure.TETE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
+        put(Armurerie.EPAULES_FER, new Armure(Armurerie.EPAULES_FER.label, EmplacementArmure.EPAULES, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
+        put(Armurerie.TORSE_FER, new Armure(Armurerie.TORSE_FER.label, EmplacementArmure.TORSE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
+        put(Armurerie.POIGNETS_FER, new Armure(Armurerie.POIGNETS_FER.label, EmplacementArmure.POIGNETS, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
+        put(Armurerie.CEINTURE_FER, new Armure(Armurerie.CEINTURE_FER.label, EmplacementArmure.CEINTURE, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
+        put(Armurerie.MAINS_FER, new Armure(Armurerie.MAINS_FER.label, EmplacementArmure.MAINS, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
+        put(Armurerie.JAMBES_FER, new Armure(Armurerie.JAMBES_FER.label, EmplacementArmure.JAMBES, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
+        put(Armurerie.PIEDS_FER, new Armure(Armurerie.PIEDS_FER.label, EmplacementArmure.PIEDS, new Statistiques(0, 0, 0, 0, 1, 1, 0), 1, 4000, 2000));
 
         put(Armurerie.FLAMBERGE, new Arme(Armurerie.FLAMBERGE.label, new Statistiques(0, 0, 50, 0, 0, 0, 20), 10, 10000, 5000));
         put(Armurerie.BATON_APPRENTI, new Arme(Armurerie.BATON_APPRENTI.label, new Statistiques(0, 0, 0, 20, 0, 0, 10), 1, 10000, 5000));
