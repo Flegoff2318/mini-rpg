@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Boutique {
-    private Map<Equipement, Integer> equipements;
-    private Map<Consommable, Integer> consommables;
+    private final Map<Equipement, Integer> equipements;
+    private final Map<Consommable, Integer> consommables;
 
     public Boutique() {
         equipements = new HashMap<>() {{

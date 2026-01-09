@@ -1,37 +1,55 @@
 package equipements;
 
+import core.Statistiques;
+
 import java.util.EnumMap;
-import java.util.stream.IntStream;
 
 public class EquipementEquipe {
     private Arme armeEquipee;
     private final EnumMap<EmplacementArmure, Armure> armuresEquipees = new EnumMap<>(EmplacementArmure.class);
 
-    public void equiper(Equipement equipement){
-        if(equipement instanceof Arme){
-            this.armeEquipee = (Arme) equipement;
-        }else if (equipement instanceof Armure){
-            this.armuresEquipees.put(((Armure) equipement).getEmplacementArmure(), (Armure) equipement);
+    public Equipement equiper(Equipement equipement) {
+        switch (equipement){
+            case Arme arme -> {
+                return equiperArme(arme);
+            }
+            case Armure armure -> {
+                return equiperArmure(armure);
+            }
+            default -> {
+                return null;
+            }
         }
+//        if (equipement instanceof Arme nouvelleArme) {
+//            return equiperArme(nouvelleArme);
+//        }
+//        if (equipement instanceof Armure nouvelleArmure) {
+//            return equiper(nouvelleArmure);
+//        }
+//        return null;
     }
 
-    public void equiperArme(Arme arme) {
+    public Equipement equiperArme(Arme arme) {
+        Arme ancienneArme = this.armeEquipee;
         this.armeEquipee = arme;
+        return ancienneArme;
     }
 
-    public void desequiperArme() {
+    public Equipement desequiperArme() {
+        Arme ancienneArme = this.armeEquipee;
         this.armeEquipee = null;
+        return ancienneArme;
     }
 
-    public void equiperArmure(Armure armure) {
-        armuresEquipees.put(armure.getEmplacementArmure(), armure);
+    public Equipement equiperArmure(Armure armure) {
+        return armuresEquipees.put(armure.emplacementArmure(), armure);
     }
 
-    public void desequiperArmure(EmplacementArmure emplacementArmure) {
-        armuresEquipees.remove(emplacementArmure);
+    public Equipement desequiperArmure(EmplacementArmure emplacementArmure) {
+        return armuresEquipees.remove(emplacementArmure);
     }
 
-    public Arme getArmeEquipee() {
+    public Equipement getArmeEquipee() {
         return armeEquipee;
     }
 
@@ -39,21 +57,14 @@ public class EquipementEquipe {
         return armuresEquipees;
     }
 
-    public int getArmureBonus() {
-        return armuresEquipees.values().stream()
-                .flatMapToInt(armure -> IntStream.of(armure.getArmure()))
-                .sum();
-    }
-
-    public int getResistanceMagiqueBonus() {
-        return armuresEquipees.values().stream()
-                .flatMapToInt(armure -> IntStream.of(armure.getResistanceMagique()))
-                .sum();
-    }
-
-    public int getVitesseBonus() {
-        return armuresEquipees.values().stream()
-                .flatMapToInt(armure -> IntStream.of(armure.getVitesse()))
-                .sum();
+    public Statistiques getBonusTotal() {
+        Statistiques total = Statistiques.zero();
+        if (armeEquipee != null) {
+            total = total.add(armeEquipee.statistiques());
+        }
+        for (Armure armure : armuresEquipees.values()) {
+            total = total.add(armure.statistiques());
+        }
+        return total;
     }
 }

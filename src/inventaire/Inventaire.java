@@ -5,6 +5,7 @@ import equipements.Equipement;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Inventaire {
     private int monnaie;
@@ -41,16 +42,8 @@ public class Inventaire {
         return consommables;
     }
 
-    public void setConsommables(Map<Consommable, Integer> consommables) {
-        this.consommables = consommables;
-    }
-
     public Map<Equipement, Integer> getEquipements() {
         return equipements;
-    }
-
-    public void setEquipements(Map<Equipement, Integer> equipements) {
-        this.equipements = equipements;
     }
 
     public void ajouterConsommables(Map<Consommable, Integer> nouveauxConsommables) {
@@ -65,33 +58,6 @@ public class Inventaire {
         );
     }
 
-    public void ajouterEquipements(Map<Equipement, Integer> nouveauxEquipements) {
-        nouveauxEquipements.forEach((c, i) ->
-                {
-                    if (equipements.containsKey(c)) {
-                        equipements.put(c, equipements.get(c) + i);
-                    } else {
-                        equipements.put(c, i);
-                    }
-                }
-        );
-    }
-
-
-    public void ajouterEquipements(Equipement equipement, int nombre) {
-        if (equipements.containsKey(equipement)) {
-            equipements.put(equipement, equipements.get(equipement) + nombre);
-        } else {
-            equipements.put(equipement, nombre);
-        }
-    }
-
-    public boolean retirerEquipements(Equipement equipement, int nombre) {
-        int nouveauTotal = equipements.get(equipement) - nombre;
-        if (nouveauTotal < 0) return false;
-        return equipements.put(equipement, equipements.get(equipement) - nombre) != null;
-    }
-
     public boolean ajouterConsommables(Consommable consommable, int nombre) {
         if (consommables.containsKey(consommable)) {
             return consommables.put(consommable, consommables.get(consommable) + nombre) != null;
@@ -104,5 +70,36 @@ public class Inventaire {
         int nouveauTotal = consommables.get(consommable) - nombre;
         if (nouveauTotal < 0) return false;
         return consommables.put(consommable, consommables.get(consommable) - nombre) != null;
+    }
+
+    public boolean contientEquipement(Equipement equipement) {
+        return equipements.getOrDefault(equipement, 0) > 0;
+    }
+
+    public void ajouterEquipement(Equipement equipement, int quantite) {
+        if (quantite <= 0) {
+            IO.println("La quantité doit être supérieure à 0.");
+            return;
+        }
+        equipements.merge(equipement, quantite, Integer::sum);
+    }
+
+    public boolean retirerEquipement(Equipement equipement, int quantite) {
+        if (quantite <= 0) {
+            IO.println("La quantité doit être supérieure à 0.");
+            return false;
+        }
+        Integer quantiteActuelle = equipements.get(equipement);
+        if (quantiteActuelle == null || quantiteActuelle < quantite) {
+            IO.println("Objet inexistant ou quantité insuffisante.");
+            return false;
+        }
+        int quantiteRestante = quantiteActuelle - quantite;
+        if (quantiteRestante == 0) {
+            equipements.remove(equipement);
+        } else {
+            equipements.put(equipement, quantiteRestante);
+        }
+        return true;
     }
 }

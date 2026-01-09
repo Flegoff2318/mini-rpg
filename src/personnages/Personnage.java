@@ -1,40 +1,38 @@
 package personnages;
 
+import core.Statistiques;
+import equipements.Equipement;
 import equipements.EquipementEquipe;
 import inventaire.Inventaire;
 
 public abstract class Personnage {
     protected String nom;
-    protected int pointsVieMax;
     protected int pointsVie;
-    protected int manaMax;
     protected int mana;
-    protected int attaque;
-    protected int armure;
-    protected int resistanceMagique;
     protected int niveau;
-    protected int vitesse;
-    protected Inventaire inventaire;
-    protected EquipementEquipe equipementEquipe;
+    protected final Inventaire inventaire;
+    protected final EquipementEquipe equipementEquipe;
+    protected Statistiques statistiques;
 
 
-
-    public Personnage() {
-
+    public Personnage(String nom, int pointsVieMax, int manaMax, int attaquePhysiquen, int puissanceMagique, int armure, int resistanceMagique, int vitesse, int niveau) {
+        this.nom = nom;
+        this.pointsVie = pointsVieMax;
+        this.mana = manaMax;
+        this.niveau = niveau;
+        this.inventaire = new Inventaire();
+        this.equipementEquipe = new EquipementEquipe();
+        this.statistiques = new Statistiques(pointsVieMax, manaMax, attaquePhysiquen, puissanceMagique, armure, resistanceMagique, vitesse);
     }
 
     public Personnage(String nom) {
         this.nom = nom;
-        pointsVieMax = 100;
-        pointsVie = 100;
-        manaMax = 100;
-        mana = 100;
-        attaque = 10;
-        armure = 2;
-        resistanceMagique = 2;
-        niveau = 1;
-        vitesse = 100;
-        inventaire = new Inventaire();
+        this.pointsVie = 100;
+        this.mana = 100;
+        this.niveau = 1;
+        this.inventaire = new Inventaire();
+        this.equipementEquipe = new EquipementEquipe();
+        this.statistiques = new Statistiques(100, 100, 10, 10, 2, 2, 100);
     }
 
     public boolean subirDegats(int degats) {
@@ -46,12 +44,12 @@ public abstract class Personnage {
         }
     }
 
-    public int soigner(int soins){
-        if(soins+pointsVie>=pointsVieMax){
-            soins = pointsVieMax-pointsVie;
-            pointsVie=pointsVieMax;
-        }else{
-            pointsVie+=soins;
+    public int soigner(int soins) {
+        if (soins + pointsVie >= statistiques.pointsVieMax()) {
+            soins = statistiques.pointsVieMax() - pointsVie;
+            pointsVie = statistiques.pointsVieMax();
+        } else {
+            pointsVie += soins;
         }
         return soins;
     }
@@ -65,6 +63,41 @@ public abstract class Personnage {
         }
     }
 
+    public Statistiques getStatsEffectives() {
+        return statistiques.add(equipementEquipe.getBonusTotal());
+    }
+
+    public int getPointsVieMax() {
+        return statistiques.pointsVieMax();
+    }
+
+    public int getManaMax() {
+        return statistiques.manaMax();
+    }
+
+    public void clampRessources() {
+        this.pointsVie = Math.min(pointsVie, getPointsVieMax());
+        this.mana = Math.min(mana, getManaMax());
+    }
+
+    public void equiperDepuisInventaire(Equipement equipement) {
+        if (!this.getInventaire().contientEquipement(equipement)) {
+            IO.println("Vous n'avez pas cet objet.");
+            return;
+        }
+        if (this.niveau < equipement.niveauRequis()) {
+            IO.println("Vous n'avez pas le niveau pour équiper cet objet !");
+            return;
+        }
+        inventaire.retirerEquipement(equipement, 1);
+        Equipement equipementRemplace = equipementEquipe.equiper(equipement);
+        if (equipementRemplace != null) {
+            inventaire.ajouterEquipement(equipementRemplace, 1);
+        }
+        // Permet de rééquilibrer les stats en fonction du nouvel équipement équipé.
+        clampRessources();
+    }
+
     public String getNom() {
         return nom;
     }
@@ -73,60 +106,12 @@ public abstract class Personnage {
         this.nom = nom;
     }
 
-    public int getPointsVieMax() {
-        return pointsVieMax;
-    }
-
-    public void setPointsVieMax(int pointsVieMax) {
-        this.pointsVieMax = pointsVieMax;
-    }
-
     public int getPointsVie() {
         return pointsVie;
     }
 
-    public void setPointsVie(int pointsVie) {
-        this.pointsVie = Math.min(pointsVie, pointsVieMax);
-    }
-
-    public int getManaMax() {
-        return manaMax;
-    }
-
-    public void setManaMax(int manaMax) {
-        this.manaMax = manaMax;
-    }
-
     public int getMana() {
         return mana;
-    }
-
-    public void setMana(int mana) {
-        this.mana = Math.min(mana, manaMax);
-    }
-
-    public int getAttaque() {
-        return attaque;
-    }
-
-    public void setAttaque(int attaque) {
-        this.attaque = attaque;
-    }
-
-    public int getArmure() {
-        return armure;
-    }
-
-    public void setArmure(int armure) {
-        this.armure = armure;
-    }
-
-    public int getResistanceMagique() {
-        return resistanceMagique;
-    }
-
-    public void setResistanceMagique(int resistanceMagique) {
-        this.resistanceMagique = resistanceMagique;
     }
 
     public int getNiveau() {
@@ -137,27 +122,19 @@ public abstract class Personnage {
         this.niveau = niveau;
     }
 
-    public int getVitesse() {
-        return vitesse;
-    }
-
-    public void setVitesse(int vitesse) {
-        this.vitesse = vitesse;
-    }
-
     public Inventaire getInventaire() {
         return inventaire;
-    }
-
-    public void setInventaire(Inventaire inventaire) {
-        this.inventaire = inventaire;
     }
 
     public EquipementEquipe getEquipementEquipe() {
         return equipementEquipe;
     }
 
-    public void setEquipementEquipe(EquipementEquipe equipementEquipe) {
-        this.equipementEquipe = equipementEquipe;
+    public Statistiques getStatistiques() {
+        return statistiques;
+    }
+
+    public void setStatistiques(Statistiques statistiques) {
+        this.statistiques = statistiques;
     }
 }

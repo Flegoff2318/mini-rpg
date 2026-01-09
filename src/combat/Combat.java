@@ -28,7 +28,7 @@ public class Combat {
         this.hero = attaquant;
         this.monstre = defenseur;
         this.contexteConsommable = new ContexteConsommable();
-        tourJoueur = attaquant.getVitesse() >= defenseur.getVitesse();
+        tourJoueur = attaquant.getStatsEffectives().vitesse() >= defenseur.getStatsEffectives().vitesse();
         contexteSort = new ContexteSort();
     }
 
@@ -139,7 +139,7 @@ public class Combat {
     }
 
     public boolean fuir() {
-        return hero.getVitesse() >= monstre.getVitesse();
+        return hero.getStatsEffectives().vitesse() >= monstre.getStatsEffectives().vitesse();
     }
 
     public boolean finCombat() {
@@ -153,21 +153,18 @@ public class Combat {
 
     public void attaquePhysique() {
         int degats;
-        int pointsVieDefenseur;
         if (tourJoueur) {
-            degats = hero.getAttaque() - monstre.getArmure();
-            pointsVieDefenseur = monstre.getPointsVie();
+            degats = hero.getStatsEffectives().attaquePhysique() - monstre.getStatsEffectives().armure();
             if (degats > 0) {
-                monstre.setPointsVie(pointsVieDefenseur - degats);
+                monstre.subirDegats(degats);
                 IO.println(String.format("Vous avez infligé %s à %s %s !", degats, monstre.getNom(), monstre.getType()));
             } else {
                 IO.println("Attaque inéfficace.");
             }
         } else {
-            degats = monstre.getAttaque() - hero.getArmure();
-            pointsVieDefenseur = hero.getPointsVie();
+            degats = monstre.getStatsEffectives().attaquePhysique() - hero.getStatsEffectives().armure();
             if (degats > 0) {
-                hero.setPointsVie(pointsVieDefenseur - degats);
+                hero.subirDegats(degats);
                 IO.println("Le monstre vous a infligé " + degats + " dégats.");
             } else {
                 IO.println("Le monstre ne vous a pas fait de dégats.");
@@ -258,7 +255,7 @@ public class Combat {
     private void pillerEquipement() {
         Map<Equipement, Integer> equipementsPille = monstre.getInventaire().getEquipements();
         if (!equipementsPille.isEmpty()) {
-            hero.getInventaire().ajouterEquipements(equipementsPille);
+            equipementsPille.forEach((equipement, integer) -> hero.getInventaire().ajouterEquipement(equipement,integer));
             int nombreEquipementsAjoutes = equipementsPille.values().stream().mapToInt(Integer::intValue).sum();
             IO.println("Vous avez récupéré " + nombreEquipementsAjoutes + " nouveaux objets.");
         }

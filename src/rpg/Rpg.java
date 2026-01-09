@@ -5,6 +5,7 @@ import combat.Combat;
 import consommables.Apothicaire;
 import consommables.Consommable;
 import consommables.Potions;
+import core.Statistiques;
 import donjon.Donjon;
 import equipements.Armurerie;
 import equipements.Equipement;
@@ -29,13 +30,10 @@ public class Rpg {
         // TODO : Type de hero, caster/physical/merchant/assassin
         hero = new Hero("Jerry");
         boutique = new Boutique();
-        hero.setAttaque(100);
-        hero.setNiveau(1);
+        Statistiques statsSupplementaires = new Statistiques(0,0,100,0,0,0,0);
+        hero.setStatistiques(hero.getStatistiques().add(statsSupplementaires));
         hero.getInventaire().ajouterMonnaie(20000);
 
-
-        // Ajouter equipement pour tester armure
-        // TODO : Utiliser l'enum pour récupérer l'équipement
         Map<Equipement,Integer> nouveauxEquipements = new HashMap<>(){{
             put(Forgeron.RATELIER.get(Armurerie.EPEE_FER),1);
             put(Forgeron.RATELIER.get(Armurerie.TETE_FER),1);
@@ -47,11 +45,9 @@ public class Rpg {
             put(Forgeron.RATELIER.get(Armurerie.JAMBES_FER),1);
             put(Forgeron.RATELIER.get(Armurerie.PIEDS_FER),1);
         }};
-        hero.getInventaire().ajouterEquipements(nouveauxEquipements);
 
-//        hero.getEquipementEquipe().equiperArme(
-//                hero.getInventaire().getEquipements().
-//        );
+        nouveauxEquipements.forEach((k,v)-> hero.getInventaire().ajouterEquipement(k,v));
+        hero.equiperDepuisInventaire(Forgeron.RATELIER.get(Armurerie.EPEE_FER));
 
         Map<Consommable, Integer> mapConsommables = new HashMap<>(
                 Map.ofEntries(
@@ -73,6 +69,7 @@ public class Rpg {
             Donjon donjon = new Donjon(10);
             IO.println("Vous entrez dans un donjon !");
             IO.println("===== DONJON =====");
+
             for (Monstre monstre : donjon.getMonstres()) {
                 Combat combat = new Combat(hero, monstre);
                 boolean quitterDonjon = combat.debutCombat();
@@ -172,13 +169,13 @@ public class Rpg {
                     IO.println(String.format("Le forgeron n'a plus de %s en stock ...", choixUtilisateur));
                 } else {
                     Equipement equipementChoisi = Forgeron.RATELIER.get(Armurerie.getByName(choixUtilisateur));
-                    if (hero.getInventaire().getMonnaie() < equipementChoisi.getPrixAchat()) {
+                    if (hero.getInventaire().getMonnaie() < equipementChoisi.prixAchat()) {
                         IO.println(String.format("Vous n'avez pas assez d'argent pour acheter %s !", choixUtilisateur));
                     } else {
                         if (boutique.retirerEquipements(equipementChoisi, 1)) {
-                            hero.getInventaire().ajouterEquipements(equipementChoisi, 1);
-                            hero.getInventaire().retirerMonnaie(equipementChoisi.getPrixAchat());
-                            IO.println(String.format("Vous avez acheté %s pour %s.", choixUtilisateur, Service.formatMonnaie(equipementChoisi.getPrixAchat())));
+                            hero.getInventaire().ajouterEquipement(equipementChoisi, 1);
+                            hero.getInventaire().retirerMonnaie(equipementChoisi.prixAchat());
+                            IO.println(String.format("Vous avez acheté %s pour %s.", choixUtilisateur, Service.formatMonnaie(equipementChoisi.prixAchat())));
                             IO.println(String.format("Il vous reste %s.", Service.formatMonnaie(hero.getInventaire().getMonnaie())));
                             choixMenuEquipements = true;
                         } else {
@@ -197,7 +194,7 @@ public class Rpg {
         IO.println(String.format("Votre argent : %s", Service.formatMonnaie(hero.getInventaire().getMonnaie())));
         boutique.getEquipements().forEach((k, v) -> {
             if (v > 0) {
-                IO.println(String.format("%s - Stock : %d, Prix : %s", k.getNom(), v, Service.formatMonnaie(k.getPrixAchat())));
+                IO.println(String.format("%s - Stock : %d, Prix : %s", k.nom(), v, Service.formatMonnaie(k.prixAchat())));
             }
         });
         IO.println("Retour");

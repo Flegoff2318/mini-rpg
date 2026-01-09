@@ -1,5 +1,7 @@
 package personnages;
 
+import core.Statistiques;
+
 public class Hero extends Personnage {
     private int experience;
 
@@ -17,27 +19,22 @@ public class Hero extends Personnage {
     public void levelUp() {
         int pallierLevelUp = (int) (10 * (Math.pow(2, this.niveau)));
         if (experience >= pallierLevelUp) {
-            niveau += 1;
-            experience = pallierLevelUp - experience;
-            attaque+=1;
-            armure += 1;
-            resistanceMagique += 1;
-            pointsVieMax += 10;
-            pointsVie = pointsVieMax;
-            manaMax += 10;
-            mana = manaMax;
-            vitesse += 10;
+            this.niveau += 1;
+            this.experience = pallierLevelUp - this.experience;
+            this.getStatistiques().add(new Statistiques(10,10,1,1,1,1,10));
+            this.pointsVie = this.getPointsVieMax();
+            this.mana = this.getManaMax();
             IO.println("Level up !");
-            IO.println(String.format("Niveau %s : Vos points de vie et de mana ont été régénérés.", niveau));
-            IO.println(String.format("- Armure : %s", armure));
-            IO.println(String.format("- Attaque : %s", attaque));
-            IO.println(String.format("- Résistance magique : %s", resistanceMagique));
-            IO.println(String.format("- Points de vie totaux : %s", pointsVieMax));
-            IO.println(String.format("- Points de mana totaux : %s", mana));
-            IO.println(String.format("- Vitesse : %s", vitesse));
+            IO.println(String.format("Niveau %s : Vos points de vie et de mana ont été régénérés.", this.niveau));
+            IO.println(String.format("- Armure : %s", this.getStatsEffectives().armure()));
+            IO.println(String.format("- Attaque : %s", this.getStatsEffectives().attaquePhysique()));
+            IO.println(String.format("- Résistance magique : %s", this.getStatsEffectives().resistanceMagique()));
+            IO.println(String.format("- Points de vie totaux : %s", this.getPointsVieMax()));
+            IO.println(String.format("- Points de mana totaux : %s", this.getManaMax()));
+            IO.println(String.format("- Vitesse : %s", this.getStatsEffectives().vitesse()));
         } else {
-            experience = pallierLevelUp - experience;
-            int experienceManquante = pallierLevelUp - experience;
+            this.experience = pallierLevelUp - this.experience;
+            int experienceManquante = pallierLevelUp - this.experience;
             IO.println(String.format("Prochain niveau dans %s d'expérience.", experienceManquante));
         }
     }
