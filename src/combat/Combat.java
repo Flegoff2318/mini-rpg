@@ -2,6 +2,7 @@ package combat;
 
 import consommables.Consommable;
 import consommables.ContexteConsommable;
+import effets.EffetConsommableMana;
 import effets.EffetConsommableSoins;
 import effets.EffetSortSoins;
 import equipements.Equipement;
@@ -104,10 +105,10 @@ public class Combat {
             if (consommable == null) {
                 IO.println("Ce consommable n'existe pas.");
             } else {
-                if (consommable.effetConsommable() instanceof EffetConsommableSoins) {
-                    contexteConsommable.utiliserConsommable(hero, hero, consommable);
-                } else {
-                    contexteConsommable.utiliserConsommable(hero, monstre, consommable);
+                switch (consommable.effetConsommable()) {
+                    case EffetConsommableSoins effetConsommableSoins -> contexteConsommable.utiliserConsommable(hero, hero, consommable);
+                    case EffetConsommableMana effetConsommableMana -> contexteConsommable.utiliserConsommable(hero, hero, consommable);
+                    default -> contexteConsommable.utiliserConsommable(hero, monstre, consommable);
                 }
                 choixValide = true;
             }
