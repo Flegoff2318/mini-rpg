@@ -13,13 +13,15 @@ public abstract class Personnage {
     protected final Inventaire inventaire;
     protected final EquipementEquipe equipementEquipe;
     protected Statistiques statistiques;
+    protected Archetype archetype;
 
 
-    public Personnage(String nom, int pointsVieMax, int manaMax, int attaquePhysique, int puissanceMagique, int armure, int resistanceMagique, int vitesse, int niveau) {
+    public Personnage(String nom, int pointsVieMax, int manaMax, int attaquePhysique, int puissanceMagique, int armure, int resistanceMagique, int vitesse, int niveau, Archetype archetype) {
         this.nom = nom;
         this.pointsVie = pointsVieMax;
         this.mana = manaMax;
         this.niveau = niveau;
+        this.archetype = archetype;
         this.inventaire = new Inventaire();
         this.equipementEquipe = new EquipementEquipe();
         this.statistiques = new Statistiques(pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse);
@@ -33,6 +35,22 @@ public abstract class Personnage {
         this.inventaire = new Inventaire();
         this.equipementEquipe = new EquipementEquipe();
         this.statistiques = new Statistiques(100, 100, 10, 10, 2, 2, 100);
+        this.archetype = Archetype.GUERRIER;
+    }
+
+    public Personnage(String nom, Archetype archetype) {
+        this.nom = nom;
+        this.niveau = 1;
+        this.archetype = archetype;
+        this.inventaire = new Inventaire();
+        this.equipementEquipe = new EquipementEquipe();
+        this.statistiques = switch (archetype) {
+            case MAGE -> new Statistiques(100, 150, 10, 25, 5, 15, 100);
+            case ASSASSIN -> new Statistiques(60, 50, 25, 10, 10, 10, 200);
+            case GUERRIER -> new Statistiques(150, 30, 35, 0, 15, 5, 100);
+        };
+        this.pointsVie = statistiques.pointsVieMax();
+        this.mana = statistiques.manaMax();
     }
 
     public boolean subirDegats(int degats) {
