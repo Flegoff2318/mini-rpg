@@ -72,6 +72,16 @@ public abstract class Personnage {
         return soins;
     }
 
+    public int recupererMana(int manaRecupere){
+        if (manaRecupere + this.mana>=statistiques.manaMax()){
+            manaRecupere = statistiques.manaMax() - this.mana;
+            mana = statistiques.manaMax();
+        }else{
+            mana+= manaRecupere;
+        }
+        return manaRecupere;
+    }
+
     public boolean consommerMana(int pointsManaConsomme) {
         if (mana - pointsManaConsomme >= 0) {
             mana -= pointsManaConsomme;
