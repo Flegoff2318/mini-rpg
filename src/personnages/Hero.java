@@ -10,6 +10,11 @@ public class Hero extends Personnage {
         experience = 0;
     }
 
+    public Hero(String nom, Archetype archetype) {
+        super(nom, archetype);
+        this.experience = 0;
+    }
+
     public void gagnerExperience(int experience) {
         this.experience += experience;
         IO.println(String.format("Vous avez gagné %s d'expérience.", experience));

@@ -11,6 +11,7 @@ import donjon.Donjon;
 import equipements.Armurerie;
 import equipements.Equipement;
 import equipements.Forgeron;
+import personnages.Archetype;
 import personnages.Hero;
 import personnages.Monstre;
 import services.Service;
@@ -33,8 +34,7 @@ public class Rpg {
     }
 
     public void testData() {
-        // TODO : Type de hero, caster/physical/merchant/assassin
-        hero = new Hero("Jerry");
+        hero = new Hero("Jerry", Archetype.ASSASSIN);
         boutique = new Boutique();
         Statistiques statsSupplementaires = new Statistiques(0, 0, 100, 0, 0, 0, 0);
         hero.setStatistiques(hero.getStatistiques().add(statsSupplementaires));

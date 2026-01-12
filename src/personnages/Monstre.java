@@ -35,7 +35,7 @@ public class Monstre extends Personnage {
         int resistanceMagique = 2 + (niveauMonstre * 2);
         int vitesse = 100 + (niveauMonstre * 10);
 
-        super(BESTIAIRE[randType][0], pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse, niveauMonstre);
+        super(BESTIAIRE[randType][0], pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse, niveauMonstre, Archetype.GUERRIER);
         type = BESTIAIRE[randType][randNom];
 
         inventaire.setMonnaie(rand.nextInt(0, 100000));
@@ -46,7 +46,7 @@ public class Monstre extends Personnage {
         int randNom = rand.nextInt(1, 4);
         int randType = rand.nextInt(0, 12);
 
-        super(BESTIAIRE[randType][0], pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse, niveau);
+        super(BESTIAIRE[randType][0], pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse, niveau, Archetype.GUERRIER);
         this.type = BESTIAIRE[randType][randNom];
 
         inventaire.setMonnaie(rand.nextInt(0, 100000));
