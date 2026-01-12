@@ -36,6 +36,7 @@ public class Combat {
         while (true) {
             if (tourJoueur) {
                 IO.println(String.format("%s %s vous jette un regard noir, qu'allez-vous faire ? (%s Points de vie restants)", monstre.getNom(), monstre.getType(), monstre.getPointsVie()));
+                IO.println(String.format("Il vous reste %s points de vie.", hero.getPointsVie()));
                 while (true) {
                     char choixUtilisateur = getChoixUtilisateurMenuPrincipal();
                     if (choixUtilisateur=='4'){
