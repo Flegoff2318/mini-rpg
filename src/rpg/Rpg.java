@@ -7,6 +7,7 @@ import consommables.Consommable;
 import consommables.ContexteConsommable;
 import consommables.Potions;
 import core.Statistiques;
+import donjon.Difficulte;
 import donjon.Donjon;
 import equipements.Armurerie;
 import equipements.Equipement;
@@ -23,6 +24,8 @@ public class Rpg {
     private Hero hero;
     private Boutique boutique;
     private final ContexteConsommable contexteConsommable;
+    private Difficulte difficulte = Difficulte.FACILE;
+    private int nombreMonstresDonjon = 10;
 
     public Rpg() {
         this.contexteConsommable = new ContexteConsommable();
@@ -81,8 +84,9 @@ public class Rpg {
                             partieEnCours = false;
                         }
                     }
-                    case '4' -> {
-                        IO.println("PeepoSad :(");
+                    case '4' -> menuOptions();
+                    case '5' -> {
+                        IO.println("Vous êtes touché au genou par une flèche, votre aventure s'achève...");
                         choixMenuPrincipal = true;
                         partieEnCours = false;
                     }
@@ -95,8 +99,85 @@ public class Rpg {
         }
     }
 
+    private void menuOptions() {
+        IO.println("===== OPTIONS =====");
+        boolean choixMenuOptions = false;
+        while (!choixMenuOptions) {
+            char choixUtilisateur = getChoixMenuOptions();
+            switch (choixUtilisateur) {
+                case '1' -> getChoixMenuNombreMonstresDonjon();
+                case '2' -> changerDifficulte();
+                case '3' -> choixMenuOptions = true;
+            }
+        }
+    }
+
+    private void changerDifficulte() {
+        boolean choixMenuDifficulte = false;
+        while (!choixMenuDifficulte) {
+            char choixUtilisateur = getChoixDifficulte();
+            switch (choixUtilisateur) {
+                case '1' -> {
+                    difficulte = Difficulte.FACILE;
+                    IO.println(String.format("Nouvelle difficulte : %s", difficulte.getLabel()));
+                    choixMenuDifficulte = true;
+                }
+                case '2' -> {
+                    difficulte = Difficulte.MOYEN;
+                    IO.println(String.format("Nouvelle difficulte : %s", difficulte.getLabel()));
+                    choixMenuDifficulte = true;
+                }
+                case '3' -> {
+                    difficulte = Difficulte.DIFFICILE;
+                    IO.println(String.format("Nouvelle difficulte : %s", difficulte.getLabel()));
+                    choixMenuDifficulte = true;
+                }
+                case '4' -> {
+                    difficulte = Difficulte.MORTEL;
+                    IO.println(String.format("Nouvelle difficulte : %s", difficulte.getLabel()));
+                    choixMenuDifficulte = true;
+                }
+                case '5' -> choixMenuDifficulte = true;
+            }
+        }
+    }
+
+    private char getChoixDifficulte() {
+        IO.println(String.format("Difficulte actuelle : %s", difficulte.getLabel()));
+        IO.println(String.format("1 - %s", Difficulte.FACILE.getLabel()));
+        IO.println(String.format("2 - %s", Difficulte.MOYEN.getLabel()));
+        IO.println(String.format("3 - %s", Difficulte.DIFFICILE.getLabel()));
+        IO.println(String.format("4 - %s", Difficulte.MORTEL.getLabel()));
+        IO.println("5 - Retour");
+        return IO.readln().charAt(0);
+    }
+
+    private void getChoixMenuNombreMonstresDonjon() {
+        IO.println(String.format("Nombre actuel de monstres par donjon : %d", nombreMonstresDonjon));
+        IO.print("Entre le nouveau nombre de monstres souhaité (ou `retour`): ");
+        String saisieUtilisateur = IO.readln();
+        if (saisieUtilisateur.equalsIgnoreCase("retour"))
+            return;
+        boolean saisieValide = false;
+        while (!saisieValide) {
+            try {
+                nombreMonstresDonjon = Integer.parseInt(saisieUtilisateur);
+                IO.println(String.format("Nouveau nombre de monstres dans le donjon : %d", nombreMonstresDonjon));
+                saisieValide = true;
+            } catch (NumberFormatException _) {
+            }
+        }
+    }
+
+    private char getChoixMenuOptions() {
+        IO.println("1 - Nombre de monstres par donjon");
+        IO.println("2 - Difficulte du donjon");
+        IO.println("3 - Retour");
+        return IO.readln().charAt(0);
+    }
+
     private boolean aventure() {
-        Donjon donjon = new Donjon(10,hero.getNiveau());
+        Donjon donjon = new Donjon(nombreMonstresDonjon, hero.getNiveau(), difficulte);
         IO.println("===== DONJON =====");
         boolean joueurEnVie = true;
         for (Monstre monstre : donjon.getMonstres()) {
@@ -137,21 +218,18 @@ public class Rpg {
         boolean choixMenuConsommables = false;
         while (!choixMenuConsommables) {
             String choixUtilisateur = getChoixMenuConsommablesUtilise();
-            switch (choixUtilisateur) {
-                case "retour" -> {
-                    return;
-                }
-                default -> {
-                    Consommable consommable = hero.getInventaire().getConsommables().keySet().stream()
-                            .filter(c -> c.nom().equalsIgnoreCase(choixUtilisateur))
-                            .findFirst()
-                            .orElse(null);
-                    if (consommable == null) {
-                        IO.println("Ce consommable n'existe pas.");
-                    } else {
-                        // Le hero va s'infliger des dégats si il essaye de boire une potion de type degats, c'est pas très malin de sa part!
-                        choixMenuConsommables = contexteConsommable.utiliserConsommable(hero, hero, consommable);
-                    }
+            if (choixUtilisateur.equals("retour")) {
+                return;
+            } else {
+                Consommable consommable = hero.getInventaire().getConsommables().keySet().stream()
+                        .filter(c -> c.nom().equalsIgnoreCase(choixUtilisateur))
+                        .findFirst()
+                        .orElse(null);
+                if (consommable == null) {
+                    IO.println("Ce consommable n'existe pas.");
+                } else {
+                    // Le hero va s'infliger des dégats si il essaye de boire une potion de type degats, c'est pas très malin de sa part!
+                    choixMenuConsommables = contexteConsommable.utiliserConsommable(hero, hero, consommable);
                 }
             }
 
@@ -267,7 +345,8 @@ public class Rpg {
         IO.println("1 - Boutique");
         IO.println("2 - Inventaire");
         IO.println("3 - A l'aventure !");
-        IO.println("4 - Quitter");
+        IO.println("4 - Options");
+        IO.println("5 - Quitter");
         return IO.readln().charAt(0);
     }
 
