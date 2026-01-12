@@ -39,7 +39,7 @@ public class Combat {
                 IO.println(String.format("Il vous reste %s points de vie.", hero.getPointsVie()));
                 while (true) {
                     char choixUtilisateur = getChoixUtilisateurMenuPrincipal();
-                    if (choixUtilisateur=='4'){
+                    if (choixUtilisateur == '4') {
                         return true;
                     }
                     if (choixUtilisateur == '3') {
@@ -157,7 +157,7 @@ public class Combat {
             degats = hero.getStatsEffectives().attaquePhysique() - monstre.getStatsEffectives().armure();
             if (degats > 0) {
                 monstre.subirDegats(degats);
-                IO.println(String.format("Vous avez infligé %s à %s %s !", degats, monstre.getNom(), monstre.getType()));
+                IO.println(String.format("Vous avez infligé %s degats à %s %s !", degats, monstre.getNom(), monstre.getType()));
             } else {
                 IO.println("Attaque inéfficace.");
             }
@@ -165,7 +165,7 @@ public class Combat {
             degats = monstre.getStatsEffectives().attaquePhysique() - hero.getStatsEffectives().armure();
             if (degats > 0) {
                 hero.subirDegats(degats);
-                IO.println("Le monstre vous a infligé " + degats + " dégats.");
+                IO.println(String.format("%s %s vous a infligé %s degats !", monstre.getNom(), monstre.getType(), degats));
             } else {
                 IO.println("Le monstre ne vous a pas fait de dégats.");
             }
@@ -255,7 +255,7 @@ public class Combat {
     private void pillerEquipement() {
         Map<Equipement, Integer> equipementsPille = monstre.getInventaire().getEquipements();
         if (!equipementsPille.isEmpty()) {
-            equipementsPille.forEach((equipement, integer) -> hero.getInventaire().ajouterEquipement(equipement,integer));
+            equipementsPille.forEach((equipement, integer) -> hero.getInventaire().ajouterEquipement(equipement, integer));
             int nombreEquipementsAjoutes = equipementsPille.values().stream().mapToInt(Integer::intValue).sum();
             IO.println("Vous avez récupéré " + nombreEquipementsAjoutes + " nouveaux objets.");
         }

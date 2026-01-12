@@ -1,5 +1,7 @@
 package personnages;
 
+import donjon.Difficulte;
+
 import java.util.Random;
 
 import static personnages.Bestiaire.BESTIAIRE;
@@ -27,6 +29,32 @@ public class Monstre extends Personnage {
 
 
         int niveauMonstre = niveauHero + rand.nextInt(0, 11);
+        int pointsVieMax = 100 + (niveauMonstre * 10);
+        int manaMax = 100 + (niveauMonstre * 10);
+        int attaquePhysique = 10 + (niveauMonstre * 2);
+        int puissanceMagique = 10 + (niveauMonstre * 2);
+        int armure = 2 + (niveauMonstre * 2);
+        int resistanceMagique = 2 + (niveauMonstre * 2);
+        int vitesse = 100 + (niveauMonstre * 10);
+
+        super(BESTIAIRE[randType][0], pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse, niveauMonstre, Archetype.GUERRIER);
+        type = BESTIAIRE[randType][randNom];
+
+        inventaire.setMonnaie(rand.nextInt(0, 100000));
+    }
+
+    public Monstre(int niveauHero, Difficulte difficulte) {
+        Random rand = new Random();
+        int randNom = rand.nextInt(1, 4);
+        int randType = rand.nextInt(0, 12);
+
+
+        int niveauMonstre = niveauHero + switch (difficulte) {
+            case FACILE -> rand.nextInt(0, 5);
+            case MOYEN -> rand.nextInt(0, 10);
+            case DIFFICILE -> rand.nextInt(0, 15);
+            case MORTEL -> rand.nextInt(0, 20);
+        };
         int pointsVieMax = 100 + (niveauMonstre * 10);
         int manaMax = 100 + (niveauMonstre * 10);
         int attaquePhysique = 10 + (niveauMonstre * 2);

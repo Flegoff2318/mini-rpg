@@ -15,6 +15,13 @@ public class Donjon {
         }
     }
 
+    public Donjon(int nombreDeMonstres, int niveauHero, Difficulte difficulte) {
+        monstres = new ArrayList<>();
+        for (int i = 0; i < nombreDeMonstres; i++) {
+            monstres.add(new Monstre(niveauHero,difficulte));
+        }
+    }
+
     public Donjon(int nombreDeMonstres) {
         monstres = new ArrayList<>();
         for (int i = 0; i < nombreDeMonstres; i++) {
