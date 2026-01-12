@@ -8,15 +8,15 @@ import consommables.ContexteConsommable;
 import consommables.Potions;
 import core.Statistiques;
 import donjon.Donjon;
-import effets.EffetConsommableSoins;
-import equipements.*;
+import equipements.Armurerie;
+import equipements.Equipement;
+import equipements.Forgeron;
 import personnages.Hero;
 import personnages.Monstre;
 import services.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class Rpg {
     private Hero hero;
@@ -96,7 +96,7 @@ public class Rpg {
     }
 
     private boolean aventure() {
-        Donjon donjon = new Donjon(10);
+        Donjon donjon = new Donjon(10,hero.getNiveau());
         IO.println("===== DONJON =====");
         boolean joueurEnVie = true;
         for (Monstre monstre : donjon.getMonstres()) {
