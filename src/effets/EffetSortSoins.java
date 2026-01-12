@@ -9,7 +9,7 @@ public class EffetSortSoins implements EffetSort {
         int puissanceTotale = sort.puissance() + lanceur.getStatsEffectives().puissanceMagique();
         int soins = cible.soigner(puissanceTotale);
         if (soins > 0) {
-            IO.println(String.format("%s a rendu %s point(s) de vie à %s avec le sort : %s!", lanceur.getNom(), soins, cible.getNom(), sort.nom()));
+            IO.println(String.format("%s a rendu %s point(s) de vie à %s avec le sort : %s! Points de vie actuels : %d", lanceur.getNom(), soins, cible.getNom(), sort.nom(), cible.getPointsVie()));
         } else {
             IO.println(String.format("Le sort %s de %s est inéfficace.", sort.nom(), lanceur.getNom()));
         }
