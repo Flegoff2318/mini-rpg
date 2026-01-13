@@ -26,7 +26,7 @@ public class Donjon {
             if (random.nextInt(0, 101) > 20) {
                 nouveauMonstre.getInventaire().ajouterEquipement(Forgeron.RATELIER.get(Armurerie.getRandomArmurerie()), 1);
             }
-            monstres.add(new Monstre(niveauHero, difficulte));
+            monstres.add(nouveauMonstre);
         }
     }
 
