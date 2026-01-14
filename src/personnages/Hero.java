@@ -28,7 +28,43 @@ public class Hero extends Personnage {
             if (experience >= pallierLevelUp) {
                 this.niveau += 1;
                 this.experience = pallierLevelUp - this.experience;
-                this.statistiques = this.getStatistiques().add(new Statistiques(10, 10, 1, 1, 1, 1, 10));
+                int pointsVieMax = 0;
+                int manaMax = 0;
+                int attaquePhysique = 0;
+                int puissanceMagique = 0;
+                int armure = 0;
+                int resistanceMagique = 0;
+                int vitesse = 0;
+                switch (this.archetype) {
+                    case MAGE -> {
+                        pointsVieMax = 15;
+                        manaMax = 25;
+                        attaquePhysique = 2;
+                        puissanceMagique = 5;
+                        armure = 1;
+                        resistanceMagique = 3;
+                        vitesse = 10;
+                    }
+                    case ASSASSIN -> {
+                        pointsVieMax = 20;
+                        manaMax = 20;
+                        attaquePhysique = 5;
+                        puissanceMagique = 2;
+                        armure = 2;
+                        resistanceMagique = 2;
+                        vitesse = 20;
+                    }
+                    case GUERRIER -> {
+                        pointsVieMax = 30;
+                        manaMax = 10;
+                        attaquePhysique = 8;
+                        puissanceMagique = 1;
+                        armure = 3;
+                        resistanceMagique = 1;
+                        vitesse = 10;
+                    }
+                }
+                this.statistiques = this.getStatistiques().add(new Statistiques(pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse));
                 this.pointsVie = this.getPointsVieMax();
                 this.mana = this.getManaMax();
                 IO.println("Level up !");
