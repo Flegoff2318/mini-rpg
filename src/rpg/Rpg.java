@@ -100,7 +100,7 @@ public class Rpg {
     }
 
     private void menuOptions() {
-        IO.println("===== OPTIONS =====");
+        IO.println("===== REGLAGE DIFFICULTE =====");
         boolean choixMenuOptions = false;
         while (!choixMenuOptions) {
             char choixUtilisateur = getChoixMenuOptions();
@@ -345,7 +345,7 @@ public class Rpg {
         IO.println("1 - Boutique");
         IO.println("2 - Inventaire");
         IO.println("3 - A l'aventure !");
-        IO.println("4 - Options");
+        IO.println(String.format("4 - Difficulte [%s]", difficulte.getLabel()));
         IO.println("5 - Quitter");
         return IO.readln().charAt(0);
     }

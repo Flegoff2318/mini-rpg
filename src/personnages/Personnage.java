@@ -72,12 +72,12 @@ public abstract class Personnage {
         return soins;
     }
 
-    public int recupererMana(int manaRecupere){
-        if (manaRecupere + this.mana>=statistiques.manaMax()){
+    public int recupererMana(int manaRecupere) {
+        if (manaRecupere + this.mana >= statistiques.manaMax()) {
             manaRecupere = statistiques.manaMax() - this.mana;
             mana = statistiques.manaMax();
-        }else{
-            mana+= manaRecupere;
+        } else {
+            mana += manaRecupere;
         }
         return manaRecupere;
     }
@@ -178,5 +178,9 @@ public abstract class Personnage {
 
     public void setStatistiques(Statistiques statistiques) {
         this.statistiques = statistiques;
+    }
+
+    public Archetype getArchetype() {
+        return archetype;
     }
 }
