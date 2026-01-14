@@ -106,8 +106,10 @@ public class Combat {
                 IO.println("Ce consommable n'existe pas.");
             } else {
                 switch (consommable.effetConsommable()) {
-                    case EffetConsommableSoins effetConsommableSoins -> contexteConsommable.utiliserConsommable(hero, hero, consommable);
-                    case EffetConsommableMana effetConsommableMana -> contexteConsommable.utiliserConsommable(hero, hero, consommable);
+                    case EffetConsommableSoins effetConsommableSoins ->
+                            contexteConsommable.utiliserConsommable(hero, hero, consommable);
+                    case EffetConsommableMana effetConsommableMana ->
+                            contexteConsommable.utiliserConsommable(hero, hero, consommable);
                     default -> contexteConsommable.utiliserConsommable(hero, monstre, consommable);
                 }
                 choixValide = true;
@@ -212,6 +214,7 @@ public class Combat {
         Grimoire.SORTS.values().stream()
                 .sorted(Sort::compareTo)
                 .filter(sort -> sort.niveauMinimum() <= personnage.getNiveau())
+                .filter(sort -> sort.archetype() == null || sort.archetype() == personnage.getArchetype())
                 .forEach((sort) ->
                         IO.println(String.format("%s - %s points de mana, %s de puissance",
                                 sort.nom(),
