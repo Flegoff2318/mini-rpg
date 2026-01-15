@@ -17,6 +17,7 @@ import personnages.Hero;
 import personnages.Monstre;
 import services.Service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,8 +33,49 @@ public class Rpg {
     }
 
     public void play() {
-        testData();
+        initRpg();
+        //testData();
         menuPrincipal();
+    }
+
+    private void initRpg() {
+        startMenu();
+        this.boutique = new Boutique();
+
+    }
+
+    private void startMenu() {
+        boolean creationPersonnage = false;
+        IO.println("===== CREATION PERSONNAGE =====");
+        IO.println("Choix de l'archétype : ");
+        int count = 1;
+        for (Archetype archetype : Archetype.values()) {
+            IO.println(String.format("%d - %s", count, archetype.getLabel()));
+            count++;
+        }
+        while (!creationPersonnage) {
+            Archetype archetypeHero = null;
+            String entreeUtilisateur = IO.readln();
+            char choixArchetype = entreeUtilisateur.isBlank() ? 'x' : entreeUtilisateur.charAt(0);
+            switch (choixArchetype) {
+                case '1' -> archetypeHero = Archetype.MAGE;
+                case '2' -> archetypeHero = Archetype.ASSASSIN;
+                case '3' -> archetypeHero = Archetype.GUERRIER;
+            }
+            if (archetypeHero != null) {
+                boolean choixNom = false;
+                String nom = "";
+                while (!choixNom) {
+                    IO.print("Choisissez votre nom : ");
+                    nom = IO.readln();
+                    if (!nom.isBlank()) {
+                        choixNom = true;
+                    }
+                }
+                hero = new Hero(nom, archetypeHero);
+                creationPersonnage = true;
+            }
+        }
     }
 
     public void testData() {
@@ -149,7 +191,8 @@ public class Rpg {
         IO.println(String.format("3 - %s", Difficulte.DIFFICILE.getLabel()));
         IO.println(String.format("4 - %s", Difficulte.MORTEL.getLabel()));
         IO.println("5 - Retour");
-        return IO.readln().charAt(0);
+        String str = IO.readln();
+        return str.isBlank() ? 'x' : str.charAt(0);
     }
 
     private void getChoixMenuNombreMonstresDonjon() {
@@ -173,7 +216,8 @@ public class Rpg {
         IO.println("1 - Nombre de monstres par donjon");
         IO.println("2 - Difficulte du donjon");
         IO.println("3 - Retour");
-        return IO.readln().charAt(0);
+        String str = IO.readln();
+        return str.isBlank() ? 'x' : str.charAt(0);
     }
 
     private boolean aventure() {
@@ -272,7 +316,8 @@ public class Rpg {
         boolean choixMenuDesequiper = false;
         while (!choixMenuDesequiper) {
             IO.print("Entre le nom de l'equipement : ");
-            char choixMenu = IO.readln().charAt(0);
+            String entreeUtilisateur = IO.readln();
+            char choixMenu = entreeUtilisateur.isBlank() ? 'x' : entreeUtilisateur.charAt(0);
             switch (choixMenu) {
                 case '1' -> hero.desequiperDepuisInventaire(hero.getEquipementEquipe().getArmeEquipee());
                 case '2' -> {
@@ -331,14 +376,16 @@ public class Rpg {
         IO.println("1 - Equiper une piece d'equipement");
         IO.println("2 - Desequiper une piece d'equipement");
         IO.println("3 - Retour");
-        return IO.readln().charAt(0);
+        String str = IO.readln();
+        return str.isBlank() ? 'x' : str.charAt(0);
     }
 
     public char getChoixMenuInventaire() {
         IO.println("1 - Barda");
         IO.println("2 - Consommables");
         IO.println("3 - Retour");
-        return IO.readln().charAt(0);
+        String str = IO.readln();
+        return str.isBlank() ? 'x' : str.charAt(0);
     }
 
     public char getChoixMenuPrincipal() {
@@ -347,7 +394,8 @@ public class Rpg {
         IO.println("3 - A l'aventure !");
         IO.println(String.format("4 - Difficulte [%s]", difficulte.getLabel()));
         IO.println("5 - Quitter");
-        return IO.readln().charAt(0);
+        String str = IO.readln();
+        return str.isBlank() ? 'x' : str.charAt(0);
     }
 
     public void menuBoutique() {
@@ -367,7 +415,8 @@ public class Rpg {
         IO.println("1 - Apothicaire");
         IO.println("2 - Forgeron");
         IO.println("3 - Retour");
-        return IO.readln().charAt(0);
+        String str = IO.readln();
+        return str.isBlank() ? 'x' : str.charAt(0);
     }
 
     public void menuConsommables() {

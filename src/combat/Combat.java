@@ -51,26 +51,29 @@ public class Combat {
                             IO.println("Vous ne pouvez pas fuir le combat.");
                         }
                     } else if (choixUtilisateur == '1') {
-                        while (true) {
+                        boolean choixMenuAttaque = false;
+                        while (!choixMenuAttaque) {
                             char choixAttaque = getChoixAttaqueMenuAttaque();
-                            if (choixAttaque == '3') {
-                                break;
-                            } else if (choixAttaque == '1') {
-                                attaquePhysique();
-                                if (finCombat()) {
-                                    return false;
-                                }
-                                tourJoueur = !tourJoueur;
-                                break;
-                            } else if (choixAttaque == '2') {
-                                boolean isSortChoisi = choixDuSort();
-                                if (isSortChoisi) {
+                            switch (choixAttaque) {
+                                case '1' -> {
+                                    attaquePhysique();
                                     if (finCombat()) {
                                         return false;
                                     }
                                     tourJoueur = !tourJoueur;
+                                    choixMenuAttaque = true;
                                 }
-                                break;
+                                case '2' -> {
+                                    boolean isSortChoisi = choixDuSort();
+                                    if (isSortChoisi) {
+                                        if (finCombat()) {
+                                            return false;
+                                        }
+                                        tourJoueur = !tourJoueur;
+                                    }
+                                    choixMenuAttaque = true;
+                                }
+                                case '3' -> choixMenuAttaque = true;
                             }
                         }
                     } else if (choixUtilisateur == '2') {
@@ -92,30 +95,31 @@ public class Combat {
         }
     }
 
-    public boolean choixConsommable() {
-        boolean choixValide = false;
-        while (!choixValide) {
-            String choixUtilisateur = getChoixConsommableMenuConsommable();
-            if (choixUtilisateur.equalsIgnoreCase("retour"))
-                break;
-            Consommable consommable = hero.getInventaire().getConsommables().keySet().stream()
-                    .filter(c -> c.nom().equalsIgnoreCase(choixUtilisateur))
-                    .findFirst()
-                    .orElse(null);
-            if (consommable == null) {
-                IO.println("Ce consommable n'existe pas.");
-            } else {
-                switch (consommable.effetConsommable()) {
-                    case EffetConsommableSoins effetConsommableSoins ->
-                            contexteConsommable.utiliserConsommable(hero, hero, consommable);
-                    case EffetConsommableMana effetConsommableMana ->
-                            contexteConsommable.utiliserConsommable(hero, hero, consommable);
-                    default -> contexteConsommable.utiliserConsommable(hero, monstre, consommable);
+    public void choixConsommable() {
+        if (hero.getInventaire().getConsommables().isEmpty()) {
+            IO.println("Vous n'avez aucun consommables...");
+        } else {
+            boolean choixValide = false;
+            while (!choixValide) {
+                String choixUtilisateur = getChoixConsommableMenuConsommable();
+                if (choixUtilisateur.equalsIgnoreCase("retour"))
+                    break;
+                Consommable consommable = hero.getInventaire().getConsommables().keySet().stream()
+                        .filter(c -> c.nom().equalsIgnoreCase(choixUtilisateur))
+                        .findFirst()
+                        .orElse(null);
+                if (consommable == null) {
+                    IO.println("Ce consommable n'existe pas.");
+                } else {
+                    switch (consommable.effetConsommable()) {
+                        case EffetConsommableSoins _, EffetConsommableMana _ ->
+                                contexteConsommable.utiliserConsommable(hero, hero, consommable);
+                        default -> contexteConsommable.utiliserConsommable(hero, monstre, consommable);
+                    }
+                    choixValide = true;
                 }
-                choixValide = true;
             }
         }
-        return choixValide;
     }
 
     public String getChoixConsommableMenuConsommable() {
@@ -130,7 +134,8 @@ public class Combat {
         IO.println("1 - Attaquer en melee");
         IO.println("2 - Grimoire");
         IO.println("3 - Retour");
-        return IO.readln().charAt(0);
+        String str = IO.readln();
+        return str.isBlank() ? 'x' : str.charAt(0);
     }
 
     public char getChoixUtilisateurMenuPrincipal() {
@@ -138,7 +143,8 @@ public class Combat {
         IO.println("2 - Consommables");
         IO.println("3 - Fuir");
         IO.println("4 - Quitter le Donjon");
-        return IO.readln().charAt(0);
+        String str = IO.readln();
+        return str.isBlank() ? 'x' : str.charAt(0);
     }
 
     public boolean fuir() {
