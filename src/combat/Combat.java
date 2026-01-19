@@ -1,6 +1,6 @@
 package combat;
 
-import consommables.Consommable;
+import consommables.Potion;
 import consommables.ContexteConsommable;
 import effets.EffetConsommableMana;
 import effets.EffetConsommableSoins;
@@ -13,7 +13,6 @@ import sorts.ContexteSort;
 import sorts.Grimoire;
 import sorts.Sort;
 
-import java.util.List;
 import java.util.Map;
 
 import static services.Service.formatMonnaie;
@@ -104,17 +103,17 @@ public class Combat {
                 String choixUtilisateur = getChoixConsommableMenuConsommable();
                 if (choixUtilisateur.equalsIgnoreCase("retour"))
                     break;
-                Consommable consommable = hero.getInventaire().getConsommables().keySet().stream()
+                Potion potion = hero.getInventaire().getConsommables().keySet().stream()
                         .filter(c -> c.nom().equalsIgnoreCase(choixUtilisateur))
                         .findFirst()
                         .orElse(null);
-                if (consommable == null) {
+                if (potion == null) {
                     IO.println("Ce consommable n'existe pas.");
                 } else {
-                    switch (consommable.effetConsommable()) {
+                    switch (potion.effetConsommable()) {
                         case EffetConsommableSoins _, EffetConsommableMana _ ->
-                                contexteConsommable.utiliserConsommable(hero, hero, consommable);
-                        default -> contexteConsommable.utiliserConsommable(hero, monstre, consommable);
+                                contexteConsommable.utiliserConsommable(hero, hero, potion);
+                        default -> contexteConsommable.utiliserConsommable(hero, monstre, potion);
                     }
                     choixValide = true;
                 }
@@ -254,7 +253,7 @@ public class Combat {
     }
 
     private void pillerConsommables() {
-        Map<Consommable, Integer> consommablesPille = monstre.getInventaire().getConsommables();
+        Map<Potion, Integer> consommablesPille = monstre.getInventaire().getConsommables();
         if (!consommablesPille.isEmpty()) {
             hero.getInventaire().ajouterConsommables(consommablesPille);
             int nombreConsommablesAjoutes = consommablesPille.values().stream().mapToInt(Integer::intValue).sum();

@@ -15,6 +15,16 @@ public class Hero extends Personnage {
         this.experience = 0;
     }
 
+    public Hero(String nom, int niveau, int experience) {
+        super(nom);
+
+    }
+
+    public Hero(String nom, int niveau, Archetype archetype, int experience) {
+        super(nom, niveau, archetype);
+        this.experience = experience;
+    }
+
     public void gagnerExperience(int experience) {
         this.experience += experience;
         IO.println(String.format("Vous avez gagné %s d'expérience.", experience));
@@ -27,7 +37,7 @@ public class Hero extends Personnage {
             int pallierLevelUp = (int) (10 * (Math.pow(2, this.niveau)));
             if (experience >= pallierLevelUp) {
                 this.niveau += 1;
-                this.experience = pallierLevelUp - this.experience;
+                this.experience = this.experience - pallierLevelUp;
                 int pointsVieMax = 0;
                 int manaMax = 0;
                 int attaquePhysique = 0;
@@ -82,5 +92,13 @@ public class Hero extends Personnage {
             }
         }
 
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+
+    public void setExperience(int experience) {
+        this.experience = experience;
     }
 }

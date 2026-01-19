@@ -1,8 +1,8 @@
 package effets;
 
-import consommables.Consommable;
+import consommables.Potion;
 import personnages.Personnage;
 
 public interface EffetConsommable {
-    void appliquerEffet(Personnage lanceur, Personnage cible, Consommable consommable);
+    void appliquerEffet(Personnage lanceur, Personnage cible, Potion potion);
 }
