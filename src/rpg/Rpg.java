@@ -57,7 +57,6 @@ public class Rpg {
     }
 
     private boolean newGameOrContinue() {
-        // case aucune game (fresh)
         boolean canContinueGame;
         try {
             canContinueGame = saveManager.loadLast().isPresent();
@@ -100,6 +99,14 @@ public class Rpg {
 
         }
         return true;
+    }
+
+    private void quickSave() {
+        SaveGameDto dto = saveGameMapper.toDto(hero);
+        try {
+            saveManager.saveOverwrite(hero.getNom(), dto);
+        } catch (IOException _) {
+        }
     }
 
     private boolean saveNewGame() {
@@ -254,9 +261,11 @@ public class Rpg {
                             choixMenuPrincipal = true;
                             partieEnCours = false;
                         }
+                        quickSave();
                     }
                     case '4' -> menuOptions();
                     case '5' -> {
+                        quickSave();
                         IO.println("Vous êtes touché au genou par une flèche, votre aventure s'achève...");
                         choixMenuPrincipal = true;
                         partieEnCours = false;
@@ -311,6 +320,7 @@ public class Rpg {
                 case '5' -> choixMenuDifficulte = true;
             }
         }
+        quickSave();
     }
 
     private char getChoixDifficulte() {
@@ -339,6 +349,7 @@ public class Rpg {
             } catch (NumberFormatException _) {
             }
         }
+        quickSave();
     }
 
     private char getChoixMenuOptions() {
@@ -384,6 +395,7 @@ public class Rpg {
                 case '3' -> choixMenuInventaire = true;
             }
         }
+        quickSave();
     }
 
     private void consommables() {
@@ -407,7 +419,7 @@ public class Rpg {
             }
 
         }
-
+        quickSave();
     }
 
     private String getChoixMenuConsommablesUtilise() {
@@ -435,7 +447,7 @@ public class Rpg {
                 case '3' -> choixMenuSacADos = true;
             }
         }
-
+        quickSave();
     }
 
     private void choixEquipementADesequiper() {
@@ -538,6 +550,7 @@ public class Rpg {
                 case '3' -> choixMenuBoutique = true;
             }
         }
+        quickSave();
     }
 
     private char getChoixMenuBoutique() {
