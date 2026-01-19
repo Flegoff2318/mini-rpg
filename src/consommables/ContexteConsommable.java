@@ -3,10 +3,10 @@ package consommables;
 import personnages.Personnage;
 
 public class ContexteConsommable {
-    public boolean utiliserConsommable(Personnage lanceur, Personnage cible, Consommable consommable) {
-        boolean consommableUtilise = lanceur.getInventaire().retirerConsommables(consommable,1);
+    public boolean utiliserConsommable(Personnage lanceur, Personnage cible, Potion potion) {
+        boolean consommableUtilise = lanceur.getInventaire().retirerConsommables(potion,1);
         if (consommableUtilise) {
-            consommable.effetConsommable().appliquerEffet(lanceur, cible, consommable);
+            potion.effetConsommable().appliquerEffet(lanceur, cible, potion);
             return true;
         }
         return false;

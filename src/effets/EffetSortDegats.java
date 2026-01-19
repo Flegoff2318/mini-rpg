@@ -13,7 +13,7 @@ public class EffetSortDegats implements EffetSort {
                 puissanceTotale = sort.puissance() + lanceur.getStatsEffectives().attaquePhysique();
                 physique = true;
             }
-            default -> puissanceTotale = sort.puissance() + lanceur.getStatsEffectives().puissanceMagique();
+            case null, default -> puissanceTotale = sort.puissance() + lanceur.getStatsEffectives().puissanceMagique();
         }
         int degats = puissanceTotale - cible.getStatsEffectives().resistanceMagique();
         boolean degatsInfliges = cible.subirDegats(degats);

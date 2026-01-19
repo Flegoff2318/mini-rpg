@@ -1,19 +1,19 @@
 package effets;
 
-import consommables.Consommable;
+import consommables.Potion;
 import personnages.Personnage;
 
 public class EffetConsommableDegats implements EffetConsommable{
     @Override
-    public void appliquerEffet(Personnage lanceur, Personnage cible, Consommable consommable) {
+    public void appliquerEffet(Personnage lanceur, Personnage cible, Potion potion) {
         // TODO : ajouter un type physique ou magique dans le consommable
-        int puissanceTotale = consommable.puissance() + lanceur.getStatsEffectives().puissanceMagique();
+        int puissanceTotale = potion.puissance() + lanceur.getStatsEffectives().puissanceMagique();
         int degats = puissanceTotale - cible.getStatsEffectives().resistanceMagique();
         boolean degatsInfliges = cible.subirDegats(degats);
         if (degatsInfliges) {
-            IO.println(String.format("%s a infligé %s dégât(s) à %s avec : %s!", lanceur.getNom(), degats, cible.getNom(), consommable.nom()));
+            IO.println(String.format("%s a infligé %s dégât(s) à %s avec : %s!", lanceur.getNom(), degats, cible.getNom(), potion.nom()));
         } else {
-            IO.println(String.format("%s de %s est inéfficace.", consommable.nom(), lanceur.getNom()));
+            IO.println(String.format("%s de %s est inéfficace.", potion.nom(), lanceur.getNom()));
         }
     }
 }

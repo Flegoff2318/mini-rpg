@@ -63,7 +63,7 @@ public class EquipementEquipe {
         return armuresEquipees.remove(emplacementArmure);
     }
 
-    public Equipement getArmeEquipee() {
+    public Arme getArmeEquipee() {
         return armeEquipee;
     }
 

@@ -1,15 +1,14 @@
 package inventaire;
 
-import consommables.Consommable;
+import consommables.Potion;
 import equipements.Equipement;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Inventaire {
     private int monnaie;
-    private Map<Consommable, Integer> consommables;
+    private Map<Potion, Integer> consommables;
     private Map<Equipement, Integer> equipements;
 
     public Inventaire() {
@@ -38,7 +37,7 @@ public class Inventaire {
         this.monnaie = monnaie;
     }
 
-    public Map<Consommable, Integer> getConsommables() {
+    public Map<Potion, Integer> getConsommables() {
         return consommables;
     }
 
@@ -46,7 +45,7 @@ public class Inventaire {
         return equipements;
     }
 
-    public void ajouterConsommables(Map<Consommable, Integer> nouveauxConsommables) {
+    public void ajouterConsommables(Map<Potion, Integer> nouveauxConsommables) {
         nouveauxConsommables.forEach((c, i) ->
                 {
                     if (consommables.containsKey(c)) {
@@ -58,18 +57,18 @@ public class Inventaire {
         );
     }
 
-    public boolean ajouterConsommables(Consommable consommable, int nombre) {
-        if (consommables.containsKey(consommable)) {
-            return consommables.put(consommable, consommables.get(consommable) + nombre) != null;
+    public boolean ajouterConsommables(Potion potion, int nombre) {
+        if (consommables.containsKey(potion)) {
+            return consommables.put(potion, consommables.get(potion) + nombre) != null;
         } else {
-            return consommables.put(consommable, nombre) != null;
+            return consommables.put(potion, nombre) != null;
         }
     }
 
-    public boolean retirerConsommables(Consommable consommable, int nombre) {
-        int nouveauTotal = consommables.get(consommable) - nombre;
+    public boolean retirerConsommables(Potion potion, int nombre) {
+        int nouveauTotal = consommables.get(potion) - nombre;
         if (nouveauTotal < 0) return false;
-        return consommables.put(consommable, consommables.get(consommable) - nombre) != null;
+        return consommables.put(potion, consommables.get(potion) - nombre) != null;
     }
 
     public boolean contientEquipement(Equipement equipement) {

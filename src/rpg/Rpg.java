@@ -3,7 +3,7 @@ package rpg;
 import boutique.Boutique;
 import combat.Combat;
 import consommables.Apothicaire;
-import consommables.Consommable;
+import consommables.Potion;
 import consommables.ContexteConsommable;
 import consommables.Potions;
 import core.Statistiques;
@@ -12,14 +12,22 @@ import donjon.Donjon;
 import equipements.Armurerie;
 import equipements.Equipement;
 import equipements.Forgeron;
+import persistance.SaveManager;
+import persistance.SaveService;
+import persistance.dto.SaveGameDto;
+import persistance.mapper.SaveGameMapper;
 import personnages.Archetype;
 import personnages.Hero;
 import personnages.Monstre;
 import services.Service;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Rpg {
     private Hero hero;
@@ -28,23 +36,150 @@ public class Rpg {
     private Difficulte difficulte = Difficulte.FACILE;
     private int nombreMonstresDonjon = 10;
 
+    Path savesDir = Path.of("saves");
+    private final SaveService saveService = new SaveService();
+    private final SaveGameMapper saveGameMapper = new SaveGameMapper();
+    private final SaveManager saveManager = new SaveManager(savesDir, saveService);
+
     public Rpg() {
         this.contexteConsommable = new ContexteConsommable();
     }
 
     public void play() {
-        initRpg();
-        //testData();
-        menuPrincipal();
+        if (newGameOrContinue()) {
+            menuPrincipal();
+        }
     }
 
-    private void initRpg() {
-        startMenu();
+    private boolean initRpg() {
         this.boutique = new Boutique();
-
+        return startMenu();
     }
 
-    private void startMenu() {
+    private boolean newGameOrContinue() {
+        boolean canContinueGame;
+        try {
+            canContinueGame = saveManager.loadLast().isPresent();
+        } catch (IOException e) {
+            canContinueGame = false;
+        }
+        String choixUtilisateur;
+        boolean choixValide = false;
+        if (canContinueGame) {
+            while (!choixValide) {
+                IO.println("1 - Continuer");
+                IO.println("2 - Charger");
+                IO.println("3 - Nouvelle partie");
+                IO.println("4 - Quitter");
+                choixUtilisateur = IO.readln();
+                switch (choixUtilisateur) {
+                    case "1" -> choixValide = continueGame();
+                    case "2" -> choixValide = loadGameFromList();
+                    case "3" -> choixValide = initRpg();
+                    case "4" -> {
+                        return false;
+                    }
+                }
+            }
+
+        } else {
+            while (!choixValide) {
+                IO.println("1 - Nouvelle partie");
+                IO.println("2 - Charger");
+                IO.println("3 - Quitter");
+                choixUtilisateur = IO.readln();
+                switch (choixUtilisateur) {
+                    case "1" -> choixValide = initRpg();
+                    case "2" -> choixValide = loadGameFromList();
+                    case "3" -> {
+                        return false;
+                    }
+                }
+            }
+
+        }
+        return true;
+    }
+
+    private void quickSave() {
+        SaveGameDto dto = saveGameMapper.toDto(hero);
+        try {
+            saveManager.saveOverwrite(hero.getNom(), dto);
+        } catch (IOException _) {
+        }
+    }
+
+    private boolean saveNewGame() {
+        SaveGameDto dto = saveGameMapper.toDto(hero);
+        boolean saved = false;
+        try {
+            saveManager.saveNew(hero.getNom(), dto);
+            saved = true;
+        } catch (IOException e) {
+            IO.println("Ce nom est deja pris !");
+        }
+        return saved;
+    }
+
+    private boolean saveOverwriteGame() {
+        SaveGameDto dto = saveGameMapper.toDto(hero);
+        boolean saved = false;
+        try {
+            saveManager.saveOverwrite(hero.getNom(), dto);
+            IO.println("Sauvegarde effectuee !");
+            saved = true;
+        } catch (IOException e) {
+            IO.println("Aucune sauvegarde a ce nom.");
+        }
+        return saved;
+    }
+
+    private boolean continueGame() {
+        try {
+            Optional<SaveGameDto> optionalSaveGameDto = saveManager.loadLast();
+            if (optionalSaveGameDto.isEmpty()) {
+                IO.println("Aucune partie recente.");
+                return false;
+            }
+            SaveGameDto dto = optionalSaveGameDto.get();
+            hero = saveGameMapper.toDomain(dto);
+            IO.println("Partie chargee !");
+            return true;
+        } catch (IOException e) {
+            IO.println("Impossible de charger la derniere partie.");
+            return false;
+        }
+    }
+
+    private boolean loadGameFromList() {
+        try {
+            List<String> saveFiles = saveManager.listSaveFiles();
+            int listSize = saveFiles.size();
+            for (int i = 0; i < listSize; i++) {
+                IO.println(String.format("%s - %s", i + 1, saveFiles.get(i)));
+            }
+            IO.println("0 - Annuler");
+            IO.print("Sauvegarde : ");
+
+            String choixSauvegardeUtilisateur = IO.readln();
+            int indexSauvegarde = Integer.parseInt(choixSauvegardeUtilisateur);
+
+            if (indexSauvegarde == 0)
+                return false;
+
+            String fileName = saveFiles.get(indexSauvegarde - 1);
+            SaveGameDto dto = saveManager.loadByFileName(fileName);
+            hero = saveGameMapper.toDomain(dto);
+            IO.println("Partie chargee !");
+
+            return true;
+        } catch (IOException e) {
+            IO.println("Erreur lors du chargement.");
+            return false;
+        }
+    }
+
+    private boolean startMenu() {
         boolean creationPersonnage = false;
         IO.println("===== CREATION PERSONNAGE =====");
         IO.println("Choix de l'archétype : ");
@@ -73,9 +208,10 @@ public class Rpg {
                     }
                 }
                 hero = new Hero(nom, archetypeHero);
-                creationPersonnage = true;
+                if (saveNewGame()) creationPersonnage = true;
             }
         }
+        return true;
     }
 
     public void testData() {
@@ -100,7 +236,7 @@ public class Rpg {
         nouveauxEquipements.forEach((k, v) -> hero.getInventaire().ajouterEquipement(k, v));
         hero.equiperDepuisInventaire(Forgeron.RATELIER.get(Armurerie.EPEE_FER));
 
-        Map<Consommable, Integer> mapConsommables = new HashMap<>(
+        Map<Potion, Integer> mapConsommables = new HashMap<>(
                 Map.ofEntries(
                         Map.entry(Apothicaire.ETAGERE.get(Potions.PDV_MINEURE), 3),
                         Map.entry(Apothicaire.ETAGERE.get(Potions.PDV_SUPERIEURE), 3)
@@ -125,9 +261,11 @@ public class Rpg {
                             choixMenuPrincipal = true;
                             partieEnCours = false;
                         }
+                        quickSave();
                     }
                     case '4' -> menuOptions();
                     case '5' -> {
+                        quickSave();
                         IO.println("Vous êtes touché au genou par une flèche, votre aventure s'achève...");
                         choixMenuPrincipal = true;
                         partieEnCours = false;
@@ -182,6 +320,7 @@ public class Rpg {
                 case '5' -> choixMenuDifficulte = true;
             }
         }
+        quickSave();
     }
 
     private char getChoixDifficulte() {
@@ -210,6 +349,7 @@ public class Rpg {
             } catch (NumberFormatException _) {
             }
         }
+        quickSave();
     }
 
     private char getChoixMenuOptions() {
@@ -255,6 +395,7 @@ public class Rpg {
                 case '3' -> choixMenuInventaire = true;
             }
         }
+        quickSave();
     }
 
     private void consommables() {
@@ -265,20 +406,20 @@ public class Rpg {
             if (choixUtilisateur.equals("retour")) {
                 return;
             } else {
-                Consommable consommable = hero.getInventaire().getConsommables().keySet().stream()
+                Potion potion = hero.getInventaire().getConsommables().keySet().stream()
                         .filter(c -> c.nom().equalsIgnoreCase(choixUtilisateur))
                         .findFirst()
                         .orElse(null);
-                if (consommable == null) {
+                if (potion == null) {
                     IO.println("Ce consommable n'existe pas.");
                 } else {
                     // Le hero va s'infliger des dégats si il essaye de boire une potion de type degats, c'est pas très malin de sa part!
-                    choixMenuConsommables = contexteConsommable.utiliserConsommable(hero, hero, consommable);
+                    choixMenuConsommables = contexteConsommable.utiliserConsommable(hero, hero, potion);
                 }
             }
 
         }
-
+        quickSave();
     }
 
     private String getChoixMenuConsommablesUtilise() {
@@ -306,7 +447,7 @@ public class Rpg {
                 case '3' -> choixMenuSacADos = true;
             }
         }
-
+        quickSave();
     }
 
     private void choixEquipementADesequiper() {
@@ -409,6 +550,7 @@ public class Rpg {
                 case '3' -> choixMenuBoutique = true;
             }
         }
+        quickSave();
     }
 
     private char getChoixMenuBoutique() {
@@ -430,14 +572,14 @@ public class Rpg {
                 if (boutique.getConsommables().get(Apothicaire.ETAGERE.get(Potions.getByName(choixUtilisateur))) <= 0) {
                     IO.println(String.format("L'apothicaire n'a plus de %s en stock ...", choixUtilisateur));
                 } else {
-                    Consommable consommableChoisi = Apothicaire.ETAGERE.get(Potions.getByName(choixUtilisateur));
-                    if (hero.getInventaire().getMonnaie() < consommableChoisi.prixAchat()) {
+                    Potion potionChoisi = Apothicaire.ETAGERE.get(Potions.getByName(choixUtilisateur));
+                    if (hero.getInventaire().getMonnaie() < potionChoisi.prixAchat()) {
                         IO.println(String.format("Vous n'avez pas assez d'argent pour acheter %s !", choixUtilisateur));
                     } else {
-                        if (boutique.retirerConsommables(consommableChoisi, 1)) {
-                            hero.getInventaire().ajouterConsommables(consommableChoisi, 1);
-                            hero.getInventaire().retirerMonnaie(consommableChoisi.prixAchat());
-                            IO.println(String.format("Vous avez acheté %s pour %s.", choixUtilisateur, Service.formatMonnaie(consommableChoisi.prixAchat())));
+                        if (boutique.retirerConsommables(potionChoisi, 1)) {
+                            hero.getInventaire().ajouterConsommables(potionChoisi, 1);
+                            hero.getInventaire().retirerMonnaie(potionChoisi.prixAchat());
+                            IO.println(String.format("Vous avez acheté %s pour %s.", choixUtilisateur, Service.formatMonnaie(potionChoisi.prixAchat())));
                             IO.println(String.format("Il vous reste %s.", Service.formatMonnaie(hero.getInventaire().getMonnaie())));
                             choixMenuConsommables = true;
                         } else {
