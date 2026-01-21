@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Rpg {
     private Hero hero;
@@ -51,9 +50,9 @@ public class Rpg {
         }
     }
 
-    private boolean initRpg() {
+    private boolean startMenu() {
         this.boutique = new Boutique();
-        return startMenu();
+        return newGame();
     }
 
     private boolean newGameOrContinue() {
@@ -75,7 +74,7 @@ public class Rpg {
                 switch (choixUtilisateur) {
                     case "1" -> choixValide = continueGame();
                     case "2" -> choixValide = loadGameFromList();
-                    case "3" -> choixValide = initRpg();
+                    case "3" -> choixValide = startMenu();
                     case "4" -> {
                         return false;
                     }
@@ -89,7 +88,7 @@ public class Rpg {
                 IO.println("3 - Quitter");
                 choixUtilisateur = IO.readln();
                 switch (choixUtilisateur) {
-                    case "1" -> choixValide = initRpg();
+                    case "1" -> choixValide = startMenu();
                     case "2" -> choixValide = loadGameFromList();
                     case "3" -> {
                         return false;
@@ -173,13 +172,16 @@ public class Rpg {
             IO.println("Partie chargee !");
 
             return true;
-        } catch (IOException e) {
+        } catch(NumberFormatException nfe){
+            IO.println("Ce n'est pas un nombre !");
+            return false;
+        }catch (IOException e) {
             IO.println("Erreur lors du chargement.");
             return false;
         }
     }
 
-    private boolean startMenu() {
+    private boolean newGame() {
         boolean creationPersonnage = false;
         IO.println("===== CREATION PERSONNAGE =====");
         IO.println("Choix de l'archétype : ");
@@ -204,11 +206,13 @@ public class Rpg {
                     IO.print("Choisissez votre nom : ");
                     nom = IO.readln();
                     if (!nom.isBlank()) {
-                        choixNom = true;
+                        if (saveNewGame()) {
+                            hero = new Hero(nom, archetypeHero);
+                            choixNom = true;
+                            creationPersonnage = true;
+                        }
                     }
                 }
-                hero = new Hero(nom, archetypeHero);
-                if (saveNewGame()) creationPersonnage = true;
             }
         }
         return true;
