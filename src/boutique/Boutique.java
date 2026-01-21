@@ -1,7 +1,7 @@
 package boutique;
 
 import consommables.Apothicaire;
-import consommables.Consommable;
+import consommables.Potion;
 import consommables.Potions;
 import equipements.Armurerie;
 import equipements.Equipement;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Boutique {
     private final Map<Equipement, Integer> equipements;
-    private final Map<Consommable, Integer> consommables;
+    private final Map<Potion, Integer> consommables;
 
     public Boutique() {
         equipements = new HashMap<>() {{
@@ -66,25 +66,25 @@ public class Boutique {
         return equipements.put(equipement, equipements.get(equipement) - nombre) != null;
     }
 
-    public void ajouterConsommables(Consommable consommable, int nombre) {
-        if (consommables.containsKey(consommable)) {
-            consommables.put(consommable, consommables.get(consommable) + nombre);
+    public void ajouterConsommables(Potion potion, int nombre) {
+        if (consommables.containsKey(potion)) {
+            consommables.put(potion, consommables.get(potion) + nombre);
         } else {
-            consommables.put(consommable, nombre);
+            consommables.put(potion, nombre);
         }
     }
 
-    public boolean retirerConsommables(Consommable consommable, int nombre) {
-        int nouveauTotal = consommables.get(consommable) - nombre;
+    public boolean retirerConsommables(Potion potion, int nombre) {
+        int nouveauTotal = consommables.get(potion) - nombre;
         if (nouveauTotal < 0) return false;
-        return consommables.put(consommable, consommables.get(consommable) - nombre) != null;
+        return consommables.put(potion, consommables.get(potion) - nombre) != null;
     }
 
     public Map<Equipement, Integer> getEquipements() {
         return equipements;
     }
 
-    public Map<Consommable, Integer> getConsommables() {
+    public Map<Potion, Integer> getConsommables() {
         return consommables;
     }
 }

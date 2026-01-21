@@ -10,8 +10,8 @@ public abstract class Personnage {
     protected int pointsVie;
     protected int mana;
     protected int niveau;
-    protected final Inventaire inventaire;
-    protected final EquipementEquipe equipementEquipe;
+    protected Inventaire inventaire;
+    protected EquipementEquipe equipementEquipe;
     protected Statistiques statistiques;
     protected Archetype archetype;
 
@@ -52,6 +52,20 @@ public abstract class Personnage {
         this.pointsVie = statistiques.pointsVieMax();
         this.mana = statistiques.manaMax();
     }
+    public Personnage(String nom,int niveau, Archetype archetype) {
+        this.nom = nom;
+        this.niveau = niveau;
+        this.archetype = archetype;
+        this.inventaire = new Inventaire();
+        this.equipementEquipe = new EquipementEquipe();
+        this.statistiques = switch (archetype) {
+            case MAGE -> new Statistiques(100, 150, 10, 25, 5, 15, 100);
+            case ASSASSIN -> new Statistiques(60, 50, 25, 10, 10, 10, 200);
+            case GUERRIER -> new Statistiques(150, 30, 35, 0, 15, 5, 100);
+        };
+        this.pointsVie = statistiques.pointsVieMax();
+        this.mana = statistiques.manaMax();
+    }
 
     public boolean subirDegats(int degats) {
         if (degats > 0) {
@@ -72,12 +86,12 @@ public abstract class Personnage {
         return soins;
     }
 
-    public int recupererMana(int manaRecupere){
-        if (manaRecupere + this.mana>=statistiques.manaMax()){
+    public int recupererMana(int manaRecupere) {
+        if (manaRecupere + this.mana >= statistiques.manaMax()) {
             manaRecupere = statistiques.manaMax() - this.mana;
             mana = statistiques.manaMax();
-        }else{
-            mana+= manaRecupere;
+        } else {
+            mana += manaRecupere;
         }
         return manaRecupere;
     }
@@ -178,5 +192,29 @@ public abstract class Personnage {
 
     public void setStatistiques(Statistiques statistiques) {
         this.statistiques = statistiques;
+    }
+
+    public Archetype getArchetype() {
+        return archetype;
+    }
+
+    public void setPointsVie(int pointsVie) {
+        this.pointsVie = pointsVie;
+    }
+
+    public void setMana(int mana) {
+        this.mana = mana;
+    }
+
+    public void setArchetype(Archetype archetype) {
+        this.archetype = archetype;
+    }
+
+    public void setInventaire(Inventaire inventaire) {
+        this.inventaire = inventaire;
+    }
+
+    public void setEquipementEquipe(EquipementEquipe equipementEquipe) {
+        this.equipementEquipe = equipementEquipe;
     }
 }

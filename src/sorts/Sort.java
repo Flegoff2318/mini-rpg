@@ -1,9 +1,10 @@
 package sorts;
 
 import effets.EffetSort;
+import personnages.Archetype;
 
 public record Sort(String nom, int coutMana, int puissance, int niveauMinimum,
-                   EffetSort effetSort) implements Comparable<Sort> {
+                   EffetSort effetSort, Archetype archetype) implements Comparable<Sort> {
 
     @Override
     public String toString() {

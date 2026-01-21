@@ -15,6 +15,16 @@ public class Hero extends Personnage {
         this.experience = 0;
     }
 
+    public Hero(String nom, int niveau, int experience) {
+        super(nom);
+
+    }
+
+    public Hero(String nom, int niveau, Archetype archetype, int experience) {
+        super(nom, niveau, archetype);
+        this.experience = experience;
+    }
+
     public void gagnerExperience(int experience) {
         this.experience += experience;
         IO.println(String.format("Vous avez gagné %s d'expérience.", experience));
@@ -27,8 +37,44 @@ public class Hero extends Personnage {
             int pallierLevelUp = (int) (10 * (Math.pow(2, this.niveau)));
             if (experience >= pallierLevelUp) {
                 this.niveau += 1;
-                this.experience = pallierLevelUp - this.experience;
-                this.statistiques = this.getStatistiques().add(new Statistiques(10, 10, 1, 1, 1, 1, 10));
+                this.experience = this.experience - pallierLevelUp;
+                int pointsVieMax = 0;
+                int manaMax = 0;
+                int attaquePhysique = 0;
+                int puissanceMagique = 0;
+                int armure = 0;
+                int resistanceMagique = 0;
+                int vitesse = 0;
+                switch (this.archetype) {
+                    case MAGE -> {
+                        pointsVieMax = 15;
+                        manaMax = 25;
+                        attaquePhysique = 2;
+                        puissanceMagique = 5;
+                        armure = 1;
+                        resistanceMagique = 3;
+                        vitesse = 10;
+                    }
+                    case ASSASSIN -> {
+                        pointsVieMax = 20;
+                        manaMax = 20;
+                        attaquePhysique = 5;
+                        puissanceMagique = 2;
+                        armure = 2;
+                        resistanceMagique = 2;
+                        vitesse = 20;
+                    }
+                    case GUERRIER -> {
+                        pointsVieMax = 30;
+                        manaMax = 10;
+                        attaquePhysique = 8;
+                        puissanceMagique = 1;
+                        armure = 3;
+                        resistanceMagique = 1;
+                        vitesse = 10;
+                    }
+                }
+                this.statistiques = this.getStatistiques().add(new Statistiques(pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse));
                 this.pointsVie = this.getPointsVieMax();
                 this.mana = this.getManaMax();
                 IO.println("Level up !");
@@ -46,5 +92,13 @@ public class Hero extends Personnage {
             }
         }
 
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+
+    public void setExperience(int experience) {
+        this.experience = experience;
     }
 }
