@@ -493,7 +493,9 @@ public class Rpg {
         if (hero.getEquipementEquipe().getArmuresEquipees().isEmpty()) {
             IO.println("Aucune armure équipée.");
         } else {
-            hero.getEquipementEquipe().getArmuresEquipees().forEach((_, v) -> IO.println(v));
+            hero.getEquipementEquipe().getArmuresEquipees().values().stream()
+                    .sorted(Comparator.comparingInt(Equipement::niveauRequis))
+                    .forEach(IO::println);
             armures = true;
         }
         return arme || armures;
@@ -513,7 +515,10 @@ public class Rpg {
         if (hero.getInventaire().getEquipements().isEmpty()) {
             return false;
         }
-        hero.getInventaire().getEquipements().forEach((k, _) -> IO.println(k));
+        hero.getInventaire().getEquipements().keySet().stream()
+                .sorted(Comparator.comparingInt(Equipement::niveauRequis))
+                .forEach(IO::println);
+
         return true;
     }
 

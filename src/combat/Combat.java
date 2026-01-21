@@ -233,9 +233,9 @@ public class Combat {
 
     public void pillage() {
         pillerExperience();
-        pillerEquipement();
-        pillerConsommables();
         pillerMonnaie();
+        pillerConsommables();
+        pillerEquipement();
     }
 
     private void pillerExperience() {
@@ -266,7 +266,11 @@ public class Combat {
         if (!equipementsPille.isEmpty()) {
             equipementsPille.forEach((equipement, integer) -> hero.getInventaire().ajouterEquipement(equipement, integer));
             int nombreEquipementsAjoutes = equipementsPille.values().stream().mapToInt(Integer::intValue).sum();
-            IO.println("Vous avez récupéré " + nombreEquipementsAjoutes + " nouveaux objets.");
+            if (nombreEquipementsAjoutes == 1) {
+                IO.println(String.format("Vous avez récupéré un objet : %s.", equipementsPille.keySet().stream().findFirst().get().nom()));
+            } else if (nombreEquipementsAjoutes > 1) {
+                IO.println("Vous avez récupéré " + nombreEquipementsAjoutes + " nouveaux objets.");
+            }
         }
     }
 
