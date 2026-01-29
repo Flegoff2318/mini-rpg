@@ -7,8 +7,9 @@ public record Arme(Armurerie type, String nom, Statistiques statistiques, int ni
                    int prixVente) implements Equipement {
     @Override
     public String toString() {
-        return String.format("%s - Statistiques : [Vie : %s][Mana : %s][Puissance d'attaque : %s][Puissance Magique : %s][Armure : %s][Resistance Magique : %s][Vitesse : %s]",
+        return String.format("%s - LEVEL : [%s] : HP:%s, MANA:%s, ATK:%s, MAG:%s, ARMOR:%s, MR:%s, VIT:%s",
                 nom(),
+                niveauRequis(),
                 statistiques().pointsVieMax(),
                 statistiques().manaMax(),
                 statistiques().attaquePhysique(),
@@ -17,5 +18,10 @@ public record Arme(Armurerie type, String nom, Statistiques statistiques, int ni
                 statistiques().resistanceMagique(),
                 statistiques().vitesse()
         );
+    }
+
+    @Override
+    public int getOrder() {
+        return OrderEquipement.ARME.getValue();
     }
 }

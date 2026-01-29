@@ -9,9 +9,12 @@ import consommables.Potions;
 import core.Statistiques;
 import donjon.Difficulte;
 import donjon.Donjon;
+import equipements.Armure;
 import equipements.Armurerie;
 import equipements.Equipement;
 import equipements.Forgeron;
+import inventaire.entry.ItemEntry;
+import inventaire.helpers.InventaireViewBuilder;
 import persistance.SaveManager;
 import persistance.SaveService;
 import persistance.dto.SaveGameDto;
@@ -152,7 +155,7 @@ public class Rpg {
             List<String> saveFiles = saveManager.listSaveFiles();
             int listSize = saveFiles.size();
             for (int i = 0; i < listSize; i++) {
-                IO.println(String.format("%s - %s", i + 1, saveFiles.get(i)));
+                IO.println(String.format("%s - %s", i + 1, saveFiles.get(i).replaceAll(".json", "")));
             }
             IO.println("0 - Annuler");
             IO.print("Sauvegarde : ");
@@ -169,10 +172,10 @@ public class Rpg {
             IO.println("Partie chargee !");
 
             return true;
-        } catch(NumberFormatException nfe){
+        } catch (NumberFormatException nfe) {
             IO.println("Ce n'est pas un nombre !");
             return false;
-        }catch (IOException e) {
+        } catch (IOException e) {
             IO.println("Erreur lors du chargement.");
             return false;
         }
@@ -435,16 +438,8 @@ public class Rpg {
         while (!choixMenuSacADos) {
             char choixUtilisateur = getChoixSacADos();
             switch (choixUtilisateur) {
-                case '1' -> {
-                    if (afficherSacADos()) {
-                        choixEquipementAEquiper();
-                    }
-                }
-                case '2' -> {
-                    if (afficherEquipementPorte()) {
-                        choixEquipementADesequiper();
-                    }
-                }
+                case '1' -> afficherSacADos();
+                case '2' -> afficherEquipementPorte();
                 case '3' -> choixMenuSacADos = true;
             }
         }
@@ -481,7 +476,7 @@ public class Rpg {
         IO.println("===== EQUIPEMENT PORTE =====");
         IO.println("====° Arme °====");
         if (hero.getEquipementEquipe().getArmeEquipee() != null) {
-            IO.println(hero.getEquipementEquipe().getArmeEquipee());
+            IO.println(String.format("1 - %s", hero.getEquipementEquipe().getArmeEquipee()));
             arme = true;
         } else {
             IO.println("Aucune arme équipée.");
@@ -490,33 +485,73 @@ public class Rpg {
         if (hero.getEquipementEquipe().getArmuresEquipees().isEmpty()) {
             IO.println("Aucune armure équipée.");
         } else {
-            hero.getEquipementEquipe().getArmuresEquipees().values().stream()
-                    .sorted(Comparator.comparingInt(Equipement::niveauRequis))
-                    .forEach(IO::println);
+            List<Armure> armuresEquipeesView = InventaireViewBuilder.buildEquipementsArmureView(hero.getEquipementEquipe());
+            for (int i = 0; i < armuresEquipeesView.size(); i++) {
+                IO.println(String.format("%s - %s", i + 1 + (arme ? 1 : 0), armuresEquipeesView.get(i)));
+            }
             armures = true;
+        }
+        if (arme || armures) {
+            IO.println("O - Retour");
+            boolean choixValide = false;
+            List<Armure> armuresEquipeesView = InventaireViewBuilder.buildEquipementsArmureView(hero.getEquipementEquipe());
+            while (!choixValide) {
+                String choixUtilisateur = IO.readln("Objet a desequiper : ");
+                try {
+                    int indexEquipement = Integer.parseInt(choixUtilisateur);
+                    if (indexEquipement == 0) {
+                        choixValide = true;
+                    } else if (indexEquipement == 1 && !arme) {
+                        IO.println("Vous ne pouvez pas desequiper vos mains !");
+                    } else if (indexEquipement == 1) {
+                        hero.getEquipementEquipe().desequiperArme();
+                        choixValide = true;
+                    } else if (indexEquipement > 0 && indexEquipement < armuresEquipeesView.size() + (arme ? 1 : 0)) {
+                        hero.desequiperDepuisInventaire(armuresEquipeesView.get(indexEquipement - 1 - (arme ? 1 : 0)));
+                        choixValide = true;
+                    } else {
+                        IO.println("Cet objet n'existe pas...");
+                    }
+                } catch (NumberFormatException e) {
+                    IO.println("Ce n'est pas un nombre ! x_x");
+                }
+            }
         }
         return arme || armures;
     }
 
-    private void choixEquipementAEquiper() {
-        IO.print("Entre le nom de l'equipement : ");
-        String choixUtilisateur = IO.readln();
-        hero.getInventaire().getEquipements().keySet().stream()
-                .filter(equipement -> equipement.nom().equalsIgnoreCase(choixUtilisateur))
-                .findFirst()
-                .ifPresent(equipement -> hero.equiperDepuisInventaire(equipement));
-    }
-
-    private boolean afficherSacADos() {
+    private void afficherSacADos() {
         IO.println("===== SAC A DOS =====");
         if (hero.getInventaire().getEquipements().isEmpty()) {
-            return false;
+            IO.println("Votre sac à dos est vide ...");
+            return;
         }
-        hero.getInventaire().getEquipements().keySet().stream()
-                .sorted(Comparator.comparingInt(Equipement::niveauRequis))
-                .forEach(IO::println);
+        List<ItemEntry> equipementsView = InventaireViewBuilder.buildEquipementsView(hero.getInventaire());
 
-        return true;
+        for (int i = 0; i < equipementsView.size(); i++) {
+            IO.println(String.format("%s - %s", i + 1, equipementsView.get(i).equipement()));
+        }
+        IO.println("O - Retour");
+        boolean choixValide = false;
+        while (!choixValide) {
+            String choixUtilisateur = IO.readln("Choix de l'equipement : ");
+            try {
+                int indexEquipement = Integer.parseInt(choixUtilisateur);
+                if (indexEquipement == 0) {
+                    choixValide = true;
+                } else if (indexEquipement > 0 && indexEquipement < equipementsView.size()) {
+                    hero.equiperDepuisInventaire(equipementsView.get(indexEquipement - 1).equipement());
+                    choixValide = true;
+                } else {
+                    IO.println("Cet objet n'existe pas...");
+                }
+            } catch (NumberFormatException e) {
+                IO.println("Ce n'est pas un nombre ! x_x");
+            }
+
+        }
+        // TODO : recup choix user puis equiper ou retour
+
     }
 
     private char getChoixSacADos() {

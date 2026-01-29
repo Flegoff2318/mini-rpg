@@ -6,9 +6,10 @@ public record Armure(Armurerie type, String nom, EmplacementArmure emplacementAr
                      int niveauRequis, int prixAchat, int prixVente) implements Equipement {
     @Override
     public String toString() {
-        return String.format("%s - Emplacement : %s, Statistiques : [Vie : %s][Mana : %s][Puissance d'attaque : %s][Puissance Magique : %s][Armure : %s][Resistance Magique : %s][Vitesse : %s]",
+        return String.format("%s - SLOT : %s - LEVEL : [%s] : HP:%s, MANA:%s, ATK:%s, MAG:%s, ARMOR:%s, MR:%s, VIT:%s",
                 nom(),
                 emplacementArmure().label,
+                niveauRequis(),
                 statistiques().pointsVieMax(),
                 statistiques().manaMax(),
                 statistiques().attaquePhysique(),
@@ -17,6 +18,15 @@ public record Armure(Armurerie type, String nom, EmplacementArmure emplacementAr
                 statistiques().resistanceMagique(),
                 statistiques().vitesse()
         );
+    }
+
+    @Override
+    public int getOrder() {
+        return OrderEquipement.ARMURE.getValue();
+    }
+
+    public int getArmureOrder(){
+        return this.emplacementArmure.order;
     }
 }
 
