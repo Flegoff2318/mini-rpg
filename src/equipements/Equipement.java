@@ -14,4 +14,6 @@ public sealed interface Equipement permits Arme, Armure {
     int prixVente();
 
     int prixAchat();
+
+    int getOrder();
 }

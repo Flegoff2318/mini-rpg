@@ -1,0 +1,52 @@
+package inventaire.helpers;
+
+import equipements.Arme;
+import equipements.Armure;
+import equipements.EmplacementArmure;
+import equipements.EquipementEquipe;
+import inventaire.Inventaire;
+import inventaire.entry.ItemEntry;
+
+import java.util.List;
+
+
+public class InventaireViewBuilder {
+    public static List<ItemEntry> buildEquipementsView(Inventaire inventaire) {
+        return inventaire.getEquipements().entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .map(entry -> new ItemEntry(entry.getKey(), entry.getValue()))
+                .sorted(EquipementComparators.byTypeLevelName())
+                .toList();
+    }
+
+    public static List<Arme> buildEquipementsArmeView(Inventaire inventaire) {
+        return inventaire.getEquipements().keySet().stream()
+                .filter(Arme.class::isInstance)
+                .map(Arme.class::cast)
+                .sorted(EquipementComparators.armeByLevelName())
+                .toList();
+    }
+
+    public static List<Armure> buildEquipementsArmureView(Inventaire inventaire) {
+        return inventaire.getEquipements().keySet().stream()
+                .filter(Armure.class::isInstance)
+                .map(Armure.class::cast)
+                .sorted(EquipementComparators.armureBySlotLevelName())
+                .toList();
+    }
+
+    public static List<Armure> buildEquipementsArmureView(EquipementEquipe equipementEquipe) {
+        return equipementEquipe.getArmuresEquipees().values().stream()
+                .sorted(EquipementComparators.armureBySlotLevelName())
+                .toList();
+    }
+
+    public static List<Armure> buildEquipementsArmureViewBySlot(Inventaire inventaire, EmplacementArmure emplacementArmure) {
+        return inventaire.getEquipements().keySet().stream()
+                .filter(Armure.class::isInstance)
+                .map(Armure.class::cast)
+                .filter(armure -> armure.emplacementArmure() == emplacementArmure)
+                .sorted(EquipementComparators.armureByLevelName())
+                .toList();
+    }
+}
