@@ -1,7 +1,7 @@
 package donjon;
 
 import equipements.Armurerie;
-import equipements.Forgeron;
+import equipements.ForgeronStandard;
 import personnages.Monstre;
 
 import java.util.ArrayList;
@@ -21,10 +21,11 @@ public class Donjon {
     public Donjon(int nombreDeMonstres, int niveauHero, Difficulte difficulte) {
         monstres = new ArrayList<>();
         Random random = new Random();
+        ForgeronStandard forgeronStandard = new ForgeronStandard();
         for (int i = 0; i < nombreDeMonstres; i++) {
             Monstre nouveauMonstre = new Monstre(niveauHero, difficulte);
             if (random.nextInt(0, 101) > 20) {
-                nouveauMonstre.getInventaire().ajouterEquipement(Forgeron.RATELIER.get(Armurerie.getRandomArmurerie()), 1);
+                nouveauMonstre.getInventaire().ajouterEquipement(forgeronStandard.forger(Armurerie.getRandomArmurerie()), 1);
             }
             monstres.add(nouveauMonstre);
         }

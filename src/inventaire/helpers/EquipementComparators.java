@@ -9,6 +9,10 @@ import inventaire.entry.ItemEntry;
 import java.util.Comparator;
 
 public class EquipementComparators {
+    private EquipementComparators() {
+
+    }
+
     public static Comparator<ItemEntry> byTypeLevelName() {
         return Comparator.<ItemEntry>comparingInt(itemEntry -> typeOrder(itemEntry.equipement()))
                 .thenComparingInt(itemEntry -> niveauRequis(itemEntry.equipement()))

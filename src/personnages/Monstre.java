@@ -1,22 +1,38 @@
 package personnages;
 
+import core.Statistiques;
 import donjon.Difficulte;
 
 import java.util.Random;
 
-import static personnages.Bestiaire.BESTIAIRE;
-
 public class Monstre extends Personnage {
     private String type;
+
+    private static final String YOUNG = "Jeune";
+
+    private static final String[][] TYPE_NOM_MONSTRES = {
+            {"Squelette", "Décomposé", "Brûlant", "Endurci"},
+            {"Man-Bear-Pig", YOUNG, "Adulte", "Puissant"},
+            {"Mimic", "Commun", "Peu Commun", "Rare"},
+            {"Nain", "Berbe", "Digène", "Posteur"},
+            {"Elfe", "Des Bois", "Guerrier", "Ancien"},
+            {"Darkling", "Petit", "Grandissant", "Grand"},
+            {"Homme-Bête", YOUNG, "Adulte", "Ancien"},
+            {"Orc", "Grunt", "Garde de Sang", "Champion"},
+            {"Humain", "Scout", "Coureur", "Assassin"},
+            {"Géant", "Des Collines", "Des Montagnes", "Des Glaces"},
+            {"Araignée", YOUNG, "Laineuse", "Grande"},
+            {"Centaure", "Coureur", "Scout", "Patriarche"}
+    };
 
     public Monstre() {
         Random rand = new Random();
         int randNom = rand.nextInt(1, 4);
         int randType = rand.nextInt(0, 12);
 
-        super(BESTIAIRE[randType][0]);
+        super(TYPE_NOM_MONSTRES[randType][0]);
 
-        type = BESTIAIRE[randType][randNom];
+        type = TYPE_NOM_MONSTRES[randType][randNom];
         niveau = 1;
 
         inventaire.setMonnaie(rand.nextInt(0, 100000));
@@ -37,8 +53,8 @@ public class Monstre extends Personnage {
         int resistanceMagique = 2 + (niveauMonstre * 2);
         int vitesse = 100 + (niveauMonstre * 10);
 
-        super(BESTIAIRE[randType][0], pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse, niveauMonstre, Archetype.GUERRIER);
-        type = BESTIAIRE[randType][randNom];
+        super(TYPE_NOM_MONSTRES[randType][0], new Statistiques(pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse), niveauMonstre, Archetype.GUERRIER);
+        type = TYPE_NOM_MONSTRES[randType][randNom];
 
         inventaire.setMonnaie(rand.nextInt(0, 100000));
     }
@@ -63,19 +79,19 @@ public class Monstre extends Personnage {
         int resistanceMagique = 2 + (niveauMonstre * 2);
         int vitesse = 100 + (niveauMonstre * 10);
 
-        super(BESTIAIRE[randType][0], pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse, niveauMonstre, Archetype.GUERRIER);
-        type = BESTIAIRE[randType][randNom];
+        super(TYPE_NOM_MONSTRES[randType][0], new Statistiques(pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse), niveauMonstre, Archetype.GUERRIER);
+        type = TYPE_NOM_MONSTRES[randType][randNom];
 
         inventaire.setMonnaie(rand.nextInt(0, 100000));
     }
 
-    public Monstre(int pointsVieMax, int manaMax, int attaquePhysique, int puissanceMagique, int armure, int resistanceMagique, int vitesse, int niveau) {
+    public Monstre(Statistiques statistiques, int niveau) {
         Random rand = new Random();
         int randNom = rand.nextInt(1, 4);
         int randType = rand.nextInt(0, 12);
 
-        super(BESTIAIRE[randType][0], pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse, niveau, Archetype.GUERRIER);
-        this.type = BESTIAIRE[randType][randNom];
+        super(TYPE_NOM_MONSTRES[randType][0], statistiques, niveau, Archetype.GUERRIER);
+        this.type = TYPE_NOM_MONSTRES[randType][randNom];
 
         inventaire.setMonnaie(rand.nextInt(0, 100000));
     }

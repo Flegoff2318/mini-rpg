@@ -10,7 +10,6 @@ import java.text.Normalizer;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class SaveManager {
     private static final String META_FILE = "_meta.json";
@@ -77,7 +76,7 @@ public class SaveManager {
                     .filter(name -> name.toLowerCase().endsWith(".json"))
                     .filter(name -> !name.equalsIgnoreCase(META_FILE))
                     .sorted(String.CASE_INSENSITIVE_ORDER)
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 
@@ -106,15 +105,14 @@ public class SaveManager {
         Path metaPath = savesDir.resolve(META_FILE);
         if (!Files.exists(metaPath)) return Optional.empty();
         SaveMetaDto meta = saveService.load(metaPath, SaveMetaDto.class);
-        return (meta == null || meta.lastSaveFile == null || meta.lastSaveFile.isBlank()) ? Optional.empty() : Optional.of(meta.lastSaveFile);
+        return (meta == null || meta.lastSaveFile() == null || meta.lastSaveFile().isBlank()) ? Optional.empty() : Optional.of(meta.lastSaveFile());
     }
 
     private void setLastSave(String fileName) throws IOException {
         Files.createDirectories(savesDir);
         Path metaPath = savesDir.resolve(META_FILE);
 
-        SaveMetaDto metaDto = new SaveMetaDto();
-        metaDto.lastSaveFile = fileName;
+        SaveMetaDto metaDto = new SaveMetaDto(fileName);
         saveService.save(metaPath, metaDto);
     }
 }

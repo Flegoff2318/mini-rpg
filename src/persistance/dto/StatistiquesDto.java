@@ -1,15 +1,6 @@
 package persistance.dto;
 
-public class StatistiquesDto {
-    public int pointsVieMax;
-    public int manaMax;
-    public int attaquePhysique;
-    public int puissanceMagique;
-    public int armure;
-    public int resistanceMagique;
-    public int vitesse;
+public record StatistiquesDto(int pointsVieMax, int manaMax, int attaquePhysique, int puissanceMagique, int armure,
+                              int resistanceMagique, int vitesse) {
 
-    public StatistiquesDto(){
-
-    }
 }

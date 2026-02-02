@@ -3,6 +3,7 @@ package equipements;
 import core.Statistiques;
 
 import java.util.EnumMap;
+import java.util.Map;
 
 public class EquipementEquipe {
     private Arme armeEquipee;
@@ -20,13 +21,6 @@ public class EquipementEquipe {
                 return null;
             }
         }
-//        if (equipement instanceof Arme nouvelleArme) {
-//            return equiperArme(nouvelleArme);
-//        }
-//        if (equipement instanceof Armure nouvelleArmure) {
-//            return equiper(nouvelleArmure);
-//        }
-//        return null;
     }
 
     public Equipement desequiper(Equipement equipement) {
@@ -34,7 +28,7 @@ public class EquipementEquipe {
             case Armure armure -> {
                 return desequiperArmure(armure.emplacementArmure());
             }
-            case Arme arme -> {
+            case Arme _ -> {
                 return desequiperArme();
             }
             default -> {
@@ -67,7 +61,7 @@ public class EquipementEquipe {
         return armeEquipee;
     }
 
-    public EnumMap<EmplacementArmure, Armure> getArmuresEquipees() {
+    public Map<EmplacementArmure, Armure> getArmuresEquipees() {
         return armuresEquipees;
     }
 

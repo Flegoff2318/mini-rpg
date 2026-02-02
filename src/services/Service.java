@@ -1,9 +1,18 @@
 package services;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Random;
 
 public class Service {
+
+    private static final Random rand;
+
+    static {
+        rand = new Random();
+    }
+
+    private Service(){
+    }
+
     public static String formatMonnaie(int monnaie) {
         int or;
         int argent;
@@ -15,23 +24,7 @@ public class Service {
         return String.format("%spo, %spa, %spc", or, argent, cuivre);
     }
 
-    /**
-     * This method uses the equals() method to compare naturally each element of the list to the object given in parameters.
-     *
-     * @param list List of T objects.
-     * @param o    Any object of type T.
-     * @param <T>  Any type of object.
-     * @return Returns 0 if list is empty or element "o" of type T is not found in the list, else returns the number of duplicates.
-     */
-    public static <T> int compterNombreObjets(List<T> list, T o) {
-        AtomicInteger compteur = new AtomicInteger(0);
-        if (!list.isEmpty()) {
-            list.forEach(element -> {
-                if (element.equals(o)) {
-                    compteur.incrementAndGet();
-                }
-            });
-        }
-        return compteur.get();
+    public static Random getRand() {
+        return rand;
     }
 }

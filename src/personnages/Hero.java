@@ -15,11 +15,6 @@ public class Hero extends Personnage {
         this.experience = 0;
     }
 
-    public Hero(String nom, int niveau, int experience) {
-        super(nom);
-
-    }
-
     public Hero(String nom, int niveau, Archetype archetype, int experience) {
         super(nom, niveau, archetype);
         this.experience = experience;

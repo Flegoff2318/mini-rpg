@@ -6,7 +6,6 @@ import personnages.Personnage;
 public class EffetConsommableDegats implements EffetConsommable{
     @Override
     public void appliquerEffet(Personnage lanceur, Personnage cible, Potion potion) {
-        // TODO : ajouter un type physique ou magique dans le consommable
         int puissanceTotale = potion.puissance() + lanceur.getStatsEffectives().puissanceMagique();
         int degats = puissanceTotale - cible.getStatsEffectives().resistanceMagique();
         boolean degatsInfliges = cible.subirDegats(degats);
