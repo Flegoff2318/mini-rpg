@@ -11,6 +11,10 @@ import java.util.List;
 
 
 public class InventaireViewBuilder {
+    private InventaireViewBuilder() {
+
+    }
+
     public static List<ItemEntry> buildEquipementsView(Inventaire inventaire) {
         return inventaire.getEquipements().entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)

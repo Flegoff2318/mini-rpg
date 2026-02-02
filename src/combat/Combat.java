@@ -9,9 +9,7 @@ import equipements.Equipement;
 import personnages.Hero;
 import personnages.Monstre;
 import personnages.Personnage;
-import sorts.ContexteSort;
-import sorts.Grimoire;
-import sorts.Sort;
+import sorts.*;
 
 import java.util.Map;
 
@@ -122,9 +120,7 @@ public class Combat {
     }
 
     public String getChoixConsommableMenuConsommable() {
-        hero.getInventaire().getConsommables().forEach((consommable, nombre) -> {
-            IO.println(String.format("%s - %s (Quantité : %s)", consommable.nom(), consommable.puissance(), nombre));
-        });
+        hero.getInventaire().getConsommables().forEach((consommable, nombre) -> IO.println(String.format("%s - %s (Quantité : %s)", consommable.nom(), consommable.puissance(), nombre)));
         return IO.readln();
     }
 
@@ -192,7 +188,8 @@ public class Combat {
                     if (sortChoisi.equalsIgnoreCase("retour")) {
                         break;
                     } else {
-                        Sort sort = Grimoire.SORTS.get(sortChoisi);
+                        GrimoireStandard grimoireStandard = new GrimoireStandard();
+                        Sort sort = grimoireStandard.feuilleter(Sorts.getByName(sortChoisi));
                         if (sort == null) {
                             IO.println("Ce sort n'éxiste pas. Choisis-en un autre !");
                         } else if (hero.getNiveau() < sort.niveauMinimum()) {
@@ -216,7 +213,7 @@ public class Combat {
     }
 
     public void afficherSortsDisponibles(Personnage personnage) {
-        Grimoire.SORTS.values().stream()
+        GrimoireCatalogue.getSorts().values().stream()
                 .sorted(Sort::compareTo)
                 .filter(sort -> sort.niveauMinimum() <= personnage.getNiveau())
                 .filter(sort -> sort.archetype() == null || sort.archetype() == personnage.getArchetype())

@@ -1,5 +1,7 @@
 package equipements;
 
+import services.Service;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -82,7 +84,7 @@ public enum Armurerie {
     }
 
     public static Armurerie getRandomArmurerie() {
-        Random rand = new Random();
+        Random rand = Service.getRand();
         List<Armurerie> armurerieList = Arrays.stream(Armurerie.values()).toList();
         return armurerieList.get(rand.nextInt(armurerieList.size()));
     }

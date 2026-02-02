@@ -1,6 +1,6 @@
 package persistance.mapper;
 
-import consommables.Apothicaire;
+import consommables.ApothicaireStandard;
 import consommables.Potion;
 import consommables.Potions;
 import core.Statistiques;
@@ -19,72 +19,56 @@ public class SaveGameMapper {
     // --------------------
 
     public SaveGameDto toDto(Hero hero) {
-        SaveGameDto save = new SaveGameDto();
-        save.hero = toHeroDto(hero);
-        return save;
+        return new SaveGameDto(toHeroDto(hero));
     }
 
     private HeroDto toHeroDto(Hero hero) {
-        HeroDto dto = new HeroDto();
-        dto.nom = hero.getNom();
-        dto.niveau = hero.getNiveau();
-        dto.pointsVie = hero.getPointsVie();
-        dto.mana = hero.getMana();
-        dto.experience = hero.getExperience();
-
-        // Archetype
-        dto.archetype = new ArchetypeDto();
-        dto.archetype.name = hero.getArchetype().name();
-
-        // Statistiques
-        dto.statistiques = toStatistiquesDto(hero.getStatistiques());
-
-        // Inventaire
-        dto.inventaire = toInventaireDto(hero.getInventaire());
-
-        // EquipementEquipe
-        dto.equipementEquipe = toEquipementEquipeDto(hero.getEquipementEquipe());
-
-        return dto;
+        return new HeroDto(
+                hero.getNom(),
+                hero.getExperience(),
+                hero.getNiveau(),
+                hero.getPointsVie(),
+                hero.getMana(),
+                toInventaireDto(hero.getInventaire()),
+                toEquipementEquipeDto(hero.getEquipementEquipe()),
+                toStatistiquesDto(hero.getStatistiques()),
+                new ArchetypeDto(hero.getArchetype().name())
+        );
     }
 
     private EquipementEquipeDto toEquipementEquipeDto(EquipementEquipe equipementEquipe) {
-        EquipementEquipeDto dto = new EquipementEquipeDto();
         Arme arme = equipementEquipe.getArmeEquipee();
-        dto.armeId = arme == null ? null : arme.type().name();
-        dto.armures = new HashMap<>();
+        String nomArme = arme == null ? null : arme.type().name();
+        Map<String, String> armures = new HashMap<>();
         equipementEquipe.getArmuresEquipees()
                 .forEach((emplacementArmure, armure) ->
-                        dto.armures.put(
+                        armures.put(
                                 emplacementArmure.name(),
                                 armure == null ? null : armure.type().name()
                         ));
-        return dto;
+        return new EquipementEquipeDto(nomArme, armures);
     }
 
     private InventaireDto toInventaireDto(Inventaire inventaire) {
-        InventaireDto dto = new InventaireDto();
-        dto.monnaie = inventaire.getMonnaie();
+        Map<String, Integer> consommables = new HashMap<>();
+        Map<String, Integer> equipements = new HashMap<>();
 
-        dto.consommables = new HashMap<>();
-        dto.equipements = new HashMap<>();
+        inventaire.getConsommables().forEach((potion, value) -> consommables.put(potion.type().name(), value));
+        inventaire.getEquipements().forEach((equipement, value) -> equipements.put(equipement.type().name(), value));
 
-        inventaire.getConsommables().forEach((potion, value) -> dto.consommables.put(potion.type().name(), value));
-        inventaire.getEquipements().forEach((equipement, value) -> dto.equipements.put(equipement.type().name(), value));
-
-        return dto;
+        return new InventaireDto(inventaire.getMonnaie(), consommables, equipements);
     }
 
     private StatistiquesDto toStatistiquesDto(Statistiques statistiques) {
-        StatistiquesDto dto = new StatistiquesDto();
-        dto.pointsVieMax = statistiques.pointsVieMax();
-        dto.manaMax = statistiques.manaMax();
-        dto.attaquePhysique = statistiques.attaquePhysique();
-        dto.puissanceMagique = statistiques.puissanceMagique();
-        dto.armure = statistiques.armure();
-        dto.resistanceMagique = statistiques.resistanceMagique();
-        dto.vitesse = statistiques.vitesse();
-        return dto;
+        return new StatistiquesDto(
+                statistiques.pointsVieMax(),
+                statistiques.manaMax(),
+                statistiques.attaquePhysique(),
+                statistiques.puissanceMagique(),
+                statistiques.armure(),
+                statistiques.resistanceMagique(),
+                statistiques.vitesse()
+                );
     }
 
     // --------------------
@@ -92,40 +76,81 @@ public class SaveGameMapper {
     // --------------------
 
     public Hero toDomain(SaveGameDto save) {
-        if (save == null || save.hero == null) {
+        if (save == null || save.hero() == null) {
             throw new IllegalArgumentException("SaveGameDto vide ou invalide");
         }
-        return toHeroDomain(save.hero);
+        return toHeroDomain(save.hero());
     }
 
     private Hero toHeroDomain(HeroDto dto) {
+        Hero hero = getHeroStatistiquesDomain(dto);
+        toHeroInventaireDomain(dto, hero);
+        toHeroEquipementEquipeDomain(dto, hero);
+        hero.clampRessources();
+        return hero;
+    }
+
+    private static void toHeroEquipementEquipeDomain(HeroDto dto, Hero hero) {
+        // Equipement equipe
+        EquipementEquipe equipementEquipe = new EquipementEquipe();
+        if (dto.equipementEquipe() != null && dto.equipementEquipe().armeId() != null) {
+            // Arme
+            Armurerie armurerie = Armurerie.valueOf(dto.equipementEquipe().armeId());
+            ForgeronStandard forgeronStandard = new ForgeronStandard();
+            Equipement equipement = forgeronStandard.forger(armurerie);
+            if (equipement == null) throw new IllegalArgumentException("Arme inconnue dans le RATELIER : " + armurerie);
+            equipementEquipe.equiper(equipement);
+        }
+        if (dto.equipementEquipe() != null && dto.equipementEquipe().armures() != null) {
+            // Armures (on ignore la clé emplacement, car armure connait deja son emplacement
+            for (Map.Entry<String, String> entry : dto.equipementEquipe().armures().entrySet()) {
+                String _ = entry.getKey();
+                String value = entry.getValue();
+                if (value == null) continue;
+                Armurerie armureId = Armurerie.valueOf(value);
+                ForgeronStandard forgeronStandard = new ForgeronStandard();
+                Equipement equipement = forgeronStandard.forger(armureId);
+                if (equipement == null)
+                    throw new IllegalArgumentException("Armure inconnue dans RATELIER : :" + armureId);
+                equipementEquipe.equiper(equipement);
+            }
+        }
+        hero.setEquipementEquipe(equipementEquipe);
+    }
+
+    private static Hero getHeroStatistiquesDomain(HeroDto dto) {
         // Statistiques de base
         Statistiques statistiques = new Statistiques(
-                dto.statistiques.pointsVieMax,
-                dto.statistiques.manaMax,
-                dto.statistiques.attaquePhysique,
-                dto.statistiques.puissanceMagique,
-                dto.statistiques.armure,
-                dto.statistiques.resistanceMagique,
-                dto.statistiques.vitesse
+                dto.statistiques().pointsVieMax(),
+                dto.statistiques().manaMax(),
+                dto.statistiques().attaquePhysique(),
+                dto.statistiques().puissanceMagique(),
+                dto.statistiques().armure(),
+                dto.statistiques().resistanceMagique(),
+                dto.statistiques().vitesse()
         );
 
 
         // Recreer le hero a partir du dto
-        Hero hero = new Hero(dto.nom, dto.niveau, Archetype.valueOf(dto.archetype.name), dto.experience);
+        Hero hero = new Hero(dto.nom(), dto.niveau(), Archetype.valueOf(dto.archetype().name()), dto.experience());
         hero.setStatistiques(statistiques);
         // PV/Mana actuels
-        hero.setPointsVie(dto.pointsVie);
-        hero.setMana(dto.mana);
+        hero.setPointsVie(dto.pointsVie());
+        hero.setMana(dto.mana());
+        return hero;
+    }
+
+    private static void toHeroInventaireDomain(HeroDto dto, Hero hero) {
         // Inventaire
         Inventaire inventaire = new Inventaire();
-        inventaire.setMonnaie(dto.inventaire.monnaie);
+        inventaire.setMonnaie(dto.inventaire().monnaie());
         // Equipements depuis Forgeron.RATELIER
-        if (dto.inventaire != null && dto.inventaire.equipements != null) {
-            dto.inventaire.equipements.forEach((s, integer) -> {
+        if (dto.inventaire().equipements() != null) {
+            dto.inventaire().equipements().forEach((s, integer) -> {
                 Armurerie armurerie = Armurerie.valueOf(s);
                 int qte = integer;
-                Equipement equipement = Forgeron.RATELIER.get(armurerie);
+                ForgeronStandard forgeronStandard = new ForgeronStandard();
+                Equipement equipement = forgeronStandard.forger(armurerie);
                 if (equipement == null) {
                     throw new IllegalArgumentException("Equipement inconnu dans RATELIER : " + armurerie);
                 }
@@ -133,14 +158,15 @@ public class SaveGameMapper {
             });
         }
         // Consommables depuis Apothicaire.ETAGERE
-        if (dto.inventaire != null && dto.inventaire.consommables != null) {
-            for (Map.Entry<String, Integer> entry : dto.inventaire.consommables.entrySet()) {
+        if (dto.inventaire().consommables() != null) {
+            for (Map.Entry<String, Integer> entry : dto.inventaire().consommables().entrySet()) {
                 String s = entry.getKey();
                 Integer integer = entry.getValue();
                 if (s == null) continue;
                 Potions potions = Potions.valueOf(s);
                 int qte = integer;
-                Potion potion = Apothicaire.ETAGERE.get(potions);
+                ApothicaireStandard apothicaireStandard = new ApothicaireStandard();
+                Potion potion = apothicaireStandard.melanger(potions);
                 if (potion == null) {
                     throw new IllegalArgumentException("Equipement inconnu dans ETAGERE : " + potions);
                 }
@@ -148,32 +174,5 @@ public class SaveGameMapper {
             }
         }
         hero.setInventaire(inventaire);
-        // Equipement equipe
-        EquipementEquipe equipementEquipe = new EquipementEquipe();
-        if (dto.equipementEquipe != null && dto.equipementEquipe.armeId != null) {
-            // Arme
-            Armurerie armurerie = Armurerie.valueOf(dto.equipementEquipe.armeId);
-            Equipement equipement = Forgeron.RATELIER.get(armurerie);
-            if (equipement == null) throw new IllegalArgumentException("Arme inconnue dans le RATELIER : " + armurerie);
-            equipementEquipe.equiper(equipement);
-        }
-        if (dto.equipementEquipe != null && dto.equipementEquipe.armures != null) {
-            // Armures (on ignore la clé emplacement, car armure connait deja son emplacement
-            for (Map.Entry<String, String> entry : dto.equipementEquipe.armures.entrySet()) {
-                String _ = entry.getKey();
-                String value = entry.getValue();
-                if (value == null) continue;
-                Armurerie armureId = Armurerie.valueOf(value);
-                Equipement equipement = Forgeron.RATELIER.get(armureId);
-                if (equipement == null)
-                    throw new IllegalArgumentException("Armure inconnue dans RATELIER : :" + armureId);
-                equipementEquipe.equiper(equipement);
-            }
-        }
-        hero.setEquipementEquipe(equipementEquipe);
-
-        hero.clampRessources();
-
-        return hero;
     }
 }

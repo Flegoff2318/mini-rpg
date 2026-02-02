@@ -1,9 +1,4 @@
 package persistance.dto;
 
-public class SaveMetaDto {
-    public String lastSaveFile;
-
-    public SaveMetaDto() {
-    }
-
+public record SaveMetaDto(String lastSaveFile) {
 }

@@ -16,18 +16,18 @@ public abstract class Personnage {
     protected Archetype archetype;
 
 
-    public Personnage(String nom, int pointsVieMax, int manaMax, int attaquePhysique, int puissanceMagique, int armure, int resistanceMagique, int vitesse, int niveau, Archetype archetype) {
+    protected Personnage(String nom, Statistiques statistiques, int niveau, Archetype archetype) {
         this.nom = nom;
-        this.pointsVie = pointsVieMax;
-        this.mana = manaMax;
+        this.pointsVie = statistiques.pointsVieMax();
+        this.mana = statistiques.manaMax();
         this.niveau = niveau;
         this.archetype = archetype;
         this.inventaire = new Inventaire();
         this.equipementEquipe = new EquipementEquipe();
-        this.statistiques = new Statistiques(pointsVieMax, manaMax, attaquePhysique, puissanceMagique, armure, resistanceMagique, vitesse);
+        this.statistiques = statistiques;
     }
 
-    public Personnage(String nom) {
+    protected Personnage(String nom) {
         this.nom = nom;
         this.pointsVie = 100;
         this.mana = 100;
@@ -38,7 +38,7 @@ public abstract class Personnage {
         this.archetype = Archetype.GUERRIER;
     }
 
-    public Personnage(String nom, Archetype archetype) {
+    protected Personnage(String nom, Archetype archetype) {
         this.nom = nom;
         this.niveau = 1;
         this.archetype = archetype;
@@ -52,7 +52,8 @@ public abstract class Personnage {
         this.pointsVie = statistiques.pointsVieMax();
         this.mana = statistiques.manaMax();
     }
-    public Personnage(String nom,int niveau, Archetype archetype) {
+
+    protected Personnage(String nom, int niveau, Archetype archetype) {
         this.nom = nom;
         this.niveau = niveau;
         this.archetype = archetype;
