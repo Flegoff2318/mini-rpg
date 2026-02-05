@@ -1,13 +1,11 @@
 package inventaire.helpers;
 
-import equipements.Arme;
-import equipements.Armure;
-import equipements.EmplacementArmure;
-import equipements.EquipementEquipe;
+import equipements.*;
 import inventaire.Inventaire;
 import inventaire.entry.ItemEntry;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class InventaireViewBuilder {
@@ -51,6 +49,14 @@ public class InventaireViewBuilder {
                 .map(Armure.class::cast)
                 .filter(armure -> armure.emplacementArmure() == emplacementArmure)
                 .sorted(EquipementComparators.armureByLevelName())
+                .toList();
+    }
+
+    public static List<ItemEntry> buildEquipementsView(Map<Equipement,Integer> equipements){
+        return equipements.entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .map(entry -> new ItemEntry(entry.getKey(), entry.getValue()))
+                .sorted(EquipementComparators.byTypeLevelName())
                 .toList();
     }
 }
