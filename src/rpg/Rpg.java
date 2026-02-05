@@ -9,9 +9,7 @@ import consommables.Potions;
 import donjon.Difficulte;
 import donjon.Donjon;
 import equipements.Armure;
-import equipements.Armurerie;
 import equipements.Equipement;
-import equipements.ForgeronStandard;
 import inventaire.entry.ItemEntry;
 import inventaire.helpers.InventaireViewBuilder;
 import persistance.SaveManager;
@@ -32,13 +30,17 @@ public class Rpg {
     private static final String SAVE_FILE_FORMAT = "%s - %s";
     private static final String INVALID_SELECTION_MESSAGE = "Ce choix n'est pas dans la liste !";
     private static final String DIFFICULTY_MESSAGE_FORMAT = "Nouvelle difficulte : %s";
-    private static final String RETOUR = "retour";
+    private static final String RETOUR = "Retour";
+    private static final String PLAYER_BALANCE_FORMAT = "Votre argent : %s";
+    private static final String NOT_A_NUMBER = "Ce n'est pas un nombre ! x_x";
+    private static final String CET_OBJET_N_EXISTE_PAS = "Cet objet n'existe pas...";
+    private static final String PURCHASE_MESSAGE_FORMAT = "Vous avez acheté %s pour %s.";
+    private static final String BALANCE_MESSAGE = "Il vous reste %s.";
     private Hero hero;
-    private Boutique boutique;
+    private final Boutique boutique;
     private final ContexteConsommable contexteConsommable;
     private Difficulte difficulte = Difficulte.FACILE;
     private int nombreMonstresDonjon = 10;
-    private final ForgeronStandard forgeronStandard = new ForgeronStandard();
     private final ApothicaireStandard apothicaireStandard = new ApothicaireStandard();
 
     Path savesDir = Path.of("saves");
@@ -48,6 +50,7 @@ public class Rpg {
 
     public Rpg() {
         this.contexteConsommable = new ContexteConsommable();
+        this.boutique = new Boutique();
     }
 
     public void play() {
@@ -57,7 +60,6 @@ public class Rpg {
     }
 
     private boolean startMenu() {
-        this.boutique = new Boutique();
         return newGame();
     }
 
@@ -378,7 +380,7 @@ public class Rpg {
     }
 
     private void consommables() {
-        IO.println("===== CONSOMMABLES =====");
+        IO.println("===== APOTHICAIRE =====");
         boolean choixMenuConsommables = false;
         while (!choixMenuConsommables) {
             String choixUtilisateur = getChoixMenuConsommablesUtilise();
@@ -452,10 +454,10 @@ public class Rpg {
                 hero.desequiperDepuisInventaire(armuresEquipeesView.get(indexEquipement - 1 - (arme ? 1 : 0)));
                 choixValide = true;
             } else {
-                IO.println("Cet objet n'existe pas...");
+                IO.println(CET_OBJET_N_EXISTE_PAS);
             }
         } catch (NumberFormatException _) {
-            IO.println("Ce n'est pas un nombre ! x_x");
+            IO.println(NOT_A_NUMBER);
         }
         return choixValide;
     }
@@ -503,14 +505,14 @@ public class Rpg {
                 int indexEquipement = Integer.parseInt(choixUtilisateur);
                 if (indexEquipement == 0) {
                     choixValide = true;
-                } else if (indexEquipement > 0 && indexEquipement < equipementsView.size()) {
+                } else if (indexEquipement > 0 && indexEquipement <= equipementsView.size()) {
                     hero.equiperDepuisInventaire(equipementsView.get(indexEquipement - 1).equipement());
                     choixValide = true;
                 } else {
-                    IO.println("Cet objet n'existe pas...");
+                    IO.println(CET_OBJET_N_EXISTE_PAS);
                 }
             } catch (NumberFormatException _) {
-                IO.println("Ce n'est pas un nombre ! x_x");
+                IO.println(NOT_A_NUMBER);
             }
 
         }
@@ -548,8 +550,8 @@ public class Rpg {
         while (!choixMenuBoutique) {
             char choixUtilisateur = getChoixMenuBoutique();
             switch (choixUtilisateur) {
-                case '1' -> menuConsommables();
-                case '2' -> menuEquipements();
+                case '1' -> menuApothicaire();
+                case '2' -> menuForgeron();
                 case '3' -> choixMenuBoutique = true;
                 default -> IO.println(INVALID_SELECTION_MESSAGE);
             }
@@ -565,7 +567,7 @@ public class Rpg {
         return str.isBlank() ? 'x' : str.charAt(0);
     }
 
-    public void menuConsommables() {
+    public void menuApothicaire() {
         IO.println("===== APOTHICAIRE =====");
         boolean choixMenuConsommables = false;
         while (!choixMenuConsommables) {
@@ -593,8 +595,8 @@ public class Rpg {
             if (boutique.retirerConsommables(potionChoisie, 1)) {
                 hero.getInventaire().ajouterConsommables(potionChoisie, 1);
                 hero.getInventaire().retirerMonnaie(potionChoisie.prixAchat());
-                IO.println(String.format("Vous avez acheté %s pour %s.", choixUtilisateur, Service.formatMonnaie(potionChoisie.prixAchat())));
-                IO.println(String.format("Il vous reste %s.", Service.formatMonnaie(hero.getInventaire().getMonnaie())));
+                IO.println(String.format(PURCHASE_MESSAGE_FORMAT, choixUtilisateur, Service.formatMonnaie(potionChoisie.prixAchat())));
+                IO.println(String.format(BALANCE_MESSAGE, Service.formatMonnaie(hero.getInventaire().getMonnaie())));
                 choixMenuConsommables = true;
             } else {
                 IO.println(String.format("L'apothicaire n'a plus assez de %s en stock ...", choixUtilisateur));
@@ -604,61 +606,134 @@ public class Rpg {
     }
 
     private String getChoixMenuConsommables() {
-        IO.println(String.format("Votre argent : %s", Service.formatMonnaie(hero.getInventaire().getMonnaie())));
+        IO.println(String.format(PLAYER_BALANCE_FORMAT, Service.formatMonnaie(hero.getInventaire().getMonnaie())));
         boutique.getConsommables().forEach((k, v) -> {
             if (v > 0) {
                 IO.println(String.format("%s - Stock : %d, Prix : %s", k.nom(), v, Service.formatMonnaie(k.prixAchat())));
             }
         });
-        IO.println("Retour");
+        IO.println("0 - " + RETOUR);
         return IO.readln();
     }
 
-    public void menuEquipements() {
+    public void menuForgeron() {
         IO.println("===== FORGERON =====");
         boolean choixMenuEquipements = false;
         while (!choixMenuEquipements) {
-            String choixUtilisateur = getChoixMenuEquipements();
-            if (choixUtilisateur.equalsIgnoreCase(RETOUR))
-                return;
-            if (Armurerie.contains(choixUtilisateur)) {
-                if (boutique.getEquipements().get(forgeronStandard.forger(Armurerie.getByName(choixUtilisateur))) <= 0) {
-                    IO.println(String.format("Le forgeron n'a plus de %s en stock ...", choixUtilisateur));
+            afficherChoixMenuForgeron();
+            String choixUtilisateur = getStringChoixUtilisateur();
+            switch (choixUtilisateur) {
+                case "1" -> menuAchatForgeron();
+                case "2" -> menuVenteForgeron();
+                case "3" -> choixMenuEquipements = true;
+                default -> IO.println(INVALID_SELECTION_MESSAGE);
+            }
+
+        }
+    }
+
+    private void afficherChoixMenuForgeron() {
+        IO.println("1 - Acheter de l'équipement");
+        IO.println("2 - Vendre de l'équipement");
+        IO.println("3 - " + RETOUR);
+    }
+
+    /**
+     * Recupere le choix de l'utilisateur
+     *
+     * @return La chaine de caracteres de l'utilisateur ou "x" si chaine vide.
+     */
+    public String getStringChoixUtilisateur() {
+        String str = IO.readln();
+        return str.isBlank() ? "x" : str;
+    }
+
+    private void menuAchatForgeron() {
+        List<ItemEntry> equipementsBoutiqueView = InventaireViewBuilder.buildEquipementsView(boutique.getEquipements());
+        for (int i = 0; i < equipementsBoutiqueView.size(); i++) {
+            ItemEntry itemEntry = equipementsBoutiqueView.get(i);
+            IO.println(String.format(SAVE_FILE_FORMAT + " - Stock : %d, Prix d'achat : %s", i + 1, itemEntry.equipement(), itemEntry.quantite(), Service.formatMonnaie(itemEntry.equipement().prixAchat())));
+        }
+        IO.println("0 - Retour");
+        IO.println(String.format(PLAYER_BALANCE_FORMAT, Service.formatMonnaie(hero.getInventaire().getMonnaie())));
+
+        getChoixMenuAchatForgeron(equipementsBoutiqueView);
+    }
+
+    private void getChoixMenuAchatForgeron(List<ItemEntry> equipementsBoutiqueView) {
+        boolean choixValide = false;
+        while (!choixValide) {
+            String choixUtilisateur = getStringChoixUtilisateur();
+            choixValide = selectionEtAchatEquipement(equipementsBoutiqueView, choixUtilisateur, false);
+        }
+    }
+
+    private boolean selectionEtAchatEquipement(List<ItemEntry> equipementsBoutiqueView, String choixUtilisateur, boolean choixValide) {
+        try {
+            int indexEquipement = Integer.parseInt(choixUtilisateur);
+            if (indexEquipement == 0) {
+                choixValide = true;
+            } else if (indexEquipement > 0 && indexEquipement <= equipementsBoutiqueView.size()) {
+                Equipement equipementChoisi = equipementsBoutiqueView.get(indexEquipement - 1).equipement();
+                if (hero.getInventaire().getMonnaie() < equipementChoisi.prixAchat()) {
+                    IO.println("Vous n'avez pas assez d'argent !");
                 } else {
-                    choixMenuEquipements = acheterEquipement(choixUtilisateur, false);
+                    if(boutique.retirerEquipements(equipementChoisi, 1)){
+                        choixValide = confirmerAchatEquipement(equipementChoisi);
+                    }else{
+                        IO.println(String.format("Le forgeron n'a plus assez de %s en stock ...", equipementChoisi.nom()));
+                    }
                 }
             } else {
-                IO.println("Le forgeron ne possède pas cet objet...");
+                IO.println(CET_OBJET_N_EXISTE_PAS);
             }
+        } catch (NumberFormatException _) {
+            IO.println(NOT_A_NUMBER);
         }
+        return choixValide;
     }
 
-    private boolean acheterEquipement(String choixUtilisateur, boolean choixMenuEquipements) {
-        Equipement equipementChoisi = forgeronStandard.forger(Armurerie.getByName(choixUtilisateur));
-        if (hero.getInventaire().getMonnaie() < equipementChoisi.prixAchat()) {
-            IO.println(String.format("Vous n'avez pas assez d'argent pour acheter %s !", choixUtilisateur));
-        } else {
-            if (boutique.retirerEquipements(equipementChoisi, 1)) {
-                hero.getInventaire().ajouterEquipement(equipementChoisi, 1);
-                hero.getInventaire().retirerMonnaie(equipementChoisi.prixAchat());
-                IO.println(String.format("Vous avez acheté %s pour %s.", choixUtilisateur, Service.formatMonnaie(equipementChoisi.prixAchat())));
-                IO.println(String.format("Il vous reste %s.", Service.formatMonnaie(hero.getInventaire().getMonnaie())));
-                choixMenuEquipements = true;
-            } else {
-                IO.println(String.format("Le forgeron n'a plus assez de %s en stock ...", choixUtilisateur));
-            }
-        }
-        return choixMenuEquipements;
+    private boolean confirmerAchatEquipement(Equipement equipementChoisi) {
+        hero.getInventaire().retirerMonnaie(equipementChoisi.prixAchat());
+        hero.getInventaire().ajouterEquipement(equipementChoisi, 1);
+        IO.println(String.format(PURCHASE_MESSAGE_FORMAT, equipementChoisi.nom(), Service.formatMonnaie(equipementChoisi.prixAchat())));
+        IO.println(String.format(BALANCE_MESSAGE, Service.formatMonnaie(hero.getInventaire().getMonnaie())));
+        return true;
     }
 
-    private String getChoixMenuEquipements() {
-        IO.println(String.format("Votre argent : %s", Service.formatMonnaie(hero.getInventaire().getMonnaie())));
-        boutique.getEquipements().forEach((k, v) -> {
-            if (v > 0) {
-                IO.println(String.format("%s - Stock : %d, Prix : %s", k.nom(), v, Service.formatMonnaie(k.prixAchat())));
+    private void menuVenteForgeron() {
+        List<ItemEntry> equipementsVendableView = InventaireViewBuilder.buildEquipementsView(hero.getInventaire());
+        for (int i = 0; i < equipementsVendableView.size(); i++) {
+            ItemEntry itemEntry = equipementsVendableView.get(i);
+            IO.println(String.format(SAVE_FILE_FORMAT + " - Nombre : %d, Prix de vente : %s", i + 1, itemEntry.equipement(), itemEntry.quantite(), Service.formatMonnaie(itemEntry.equipement().prixVente())));
+            IO.println("0 - Retour");
+            IO.println(String.format(PLAYER_BALANCE_FORMAT, Service.formatMonnaie(hero.getInventaire().getMonnaie())));
+        }
+
+        getChoixMenuVenteForgeron(equipementsVendableView);
+    }
+
+    private void getChoixMenuVenteForgeron(List<ItemEntry> equipementsVendableView) {
+        boolean choixValide = false;
+        while (!choixValide) {
+            String choixUtilisateur = getStringChoixUtilisateur();
+            try {
+                int indexEquipement = Integer.parseInt(choixUtilisateur);
+                if (indexEquipement == 0) {
+                    choixValide = true;
+                } else if (indexEquipement > 0 && indexEquipement <= equipementsVendableView.size()) {
+                    Equipement equipementChoisi = equipementsVendableView.get(indexEquipement - 1).equipement();
+                    hero.getInventaire().ajouterMonnaie(equipementChoisi.prixVente());
+                    hero.getInventaire().retirerEquipement(equipementChoisi,1);
+                    IO.println(String.format("Vous avez vendu %s pour %s.", equipementChoisi.nom(), Service.formatMonnaie(equipementChoisi.prixVente())));
+                    IO.println(String.format("Vous avez maintenant : %s.", Service.formatMonnaie(hero.getInventaire().getMonnaie())));
+                    choixValide=true;
+                } else {
+                    IO.println("Vous ne possédez pas cet objet...");
+                }
+            } catch (NumberFormatException _) {
+                IO.println(NOT_A_NUMBER);
             }
-        });
-        IO.println("Retour");
-        return IO.readln();
+        }
     }
 }
